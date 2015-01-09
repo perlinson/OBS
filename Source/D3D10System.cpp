@@ -226,7 +226,7 @@ D3D10System::D3D10System()
     swapDesc.BufferCount = 2;
     swapDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     swapDesc.BufferDesc.Width  = App->renderFrameWidth;
-    swapDesc.BufferDesc.Height = App->renderFrameHeight;
+	swapDesc.BufferDesc.Height = App->renderFrameHeight;
     swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swapDesc.OutputWindow = hwndRenderFrame;
     swapDesc.SampleDesc.Count = 1;

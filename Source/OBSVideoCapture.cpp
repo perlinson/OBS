@@ -528,10 +528,38 @@ void OBS::DrawPreview(const Vect2 &renderFrameSize, const Vect2 &renderFrameOffs
         DrawSprite(transitionTexture, 0xFFFFFFFF,
                 renderFrameOffset.x, renderFrameOffset.y,
                 renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);
-    else
-        DrawSprite(mainRenderTextures[curRenderTarget], 0xFFFFFFFF,
-                renderFrameOffset.x, renderFrameOffset.y,
-                renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);
+	else
+	{
+ 		RECT rcLeft = { 0 }, rcRight = { 0 };
+ 
+ 		CalculateViewportRegion(rcLeft, rcRight);
+// 
+// 		int nSourceWidth = rcPrimary.right - rcPrimary.left;
+// 		int nSourceHeight = rcPrimary.bottom - rcPrimary.top;
+// 		SetViewport(rcLeft.left, rcLeft.top, rcLeft.right - rcLeft.left, rcLeft.bottom - rcLeft.top);
+// 
+// 		DrawSprite(mainRenderTextures[curRenderTarget], 0xFFFFFFFF,
+// 			renderFrameOffset.x, renderFrameOffset.y,
+// 			renderFrameOffset.x + nSourceWidth, renderFrameOffset.y + nSourceHeight);
+// 
+// 		SetViewport(rcRight.left, rcRight.top, rcRight.right - rcRight.left, rcRight.bottom - rcRight.top);
+// 
+// 		DrawSprite(mainRenderTextures[curRenderTarget], 0xFFFFFFFF,
+// 			renderFrameOffset.x, renderFrameOffset.y,
+// 			renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);
+
+		//SetViewport(0.0f, renderFrameCtrlSize.y / 4, renderFrameCtrlSize.x / 2, renderFrameCtrlSize.y / 2);
+		SetViewport(rcLeft.left, rcLeft.top, rcLeft.right - rcLeft.left, rcLeft.bottom - rcLeft.top);
+		DrawSprite(mainRenderTextures[curRenderTarget], 0xFFFFFFFF,
+			renderFrameOffset.x, renderFrameOffset.y,
+			renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);
+
+		//SetViewport(renderFrameCtrlSize.x / 2, renderFrameCtrlSize.y / 4, renderFrameCtrlSize.x / 2, renderFrameCtrlSize.y / 2);
+		SetViewport(rcRight.left, rcRight.top, rcRight.right - rcRight.left, rcRight.bottom - rcRight.top);
+		DrawSprite(mainRenderTextures[curRenderTarget], 0xFFFFFFFF,
+			renderFrameOffset.x, renderFrameOffset.y,
+			renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);
+	}
 }
 
 const float yuvFullMat[][16] = {

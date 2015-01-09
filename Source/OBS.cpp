@@ -794,8 +794,8 @@ OBS::OBS()
 
     ConfigureStreamButtons();
 
-    ResizeWindow(false);
-    ShowWindow(hwndMain, SW_SHOW);
+//     ResizeWindow(false);
+//     ShowWindow(hwndMain, SW_SHOW);
 
     renderFrameIn1To1Mode = !!GlobalConfig->GetInt(L"General", L"1to1Preview", false);
 
@@ -811,8 +811,11 @@ OBS::OBS()
     if (GlobalConfig->GetInt(L"General", L"ShowLogWindowOnLaunch") != 0)
         PostMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_SHOWLOG, 0), 0);
 
-    if (bStreamOnStart)
-        PostMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_STARTSTOP, 0), NULL);
+//     if (bStreamOnStart)
+//         PostMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_STARTSTOP, 0), NULL);
+
+	ResetMainWndState();
+	ShowWindow(hwndMain, monitors.Num() != 1);
 }
 
 
@@ -1068,19 +1071,27 @@ void OBS::SetFullscreenMode(bool fullscreen)
         LONG style = GetWindowLong(hwndMain, GWL_STYLE);
         SetWindowLong(hwndMain, GWL_STYLE, style & ~(WS_CAPTION | WS_THICKFRAME));
 
+		// Show borders
+		LONG exstyle = GetWindowLong(hwndMain, GWL_STYLE);
+		SetWindowLong(hwndMain, GWL_STYLE, exstyle | WS_EX_TOOLWINDOW);
         // Hide menu and status bar
         SetMenu(hwndMain, NULL);
 
-        // Fill entire screen
-        HMONITOR monitorForWidow = MonitorFromWindow(hwndMain, MONITOR_DEFAULTTONEAREST);
-        MONITORINFO monitorInfo;
-        monitorInfo.cbSize = sizeof(monitorInfo);
-        GetMonitorInfo(monitorForWidow, &monitorInfo);
-        int x = monitorInfo.rcMonitor.left;
-        int y = monitorInfo.rcMonitor.top;
-        int cx = monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
-        int cy = monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top;
-        SetWindowPos(hwndMain, HWND_TOPMOST, x, y, cx, cy, SWP_FRAMECHANGED);
+		//// Fill entire screen
+		//HMONITOR monitorForWidow = MonitorFromWindow(hwndMain, MONITOR_DEFAULTTONEAREST);
+		//MONITORINFO monitorInfo;
+		//monitorInfo.cbSize = sizeof(monitorInfo);
+		//GetMonitorInfo(monitorForWidow, &monitorInfo);
+		//int x = monitorInfo.rcMonitor.left;
+		//int y = monitorInfo.rcMonitor.top;
+		//int cx = monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
+		//int cy = monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top;
+
+		int x = rcDisplay.left;
+		int y = rcDisplay.top;
+		int cx = rcDisplay.right - rcDisplay.left;
+		int cy = rcDisplay.bottom - rcDisplay.top;
+		SetWindowPos(hwndMain, HWND_TOPMOST, x, y, cx, cy, SWP_FRAMECHANGED | SWP_SHOWWINDOW);
 
         // Update menu checkboxes
         CheckMenuItem(hmenuMain, ID_FULLSCREENMODE, MF_CHECKED);
@@ -1107,7 +1118,7 @@ void OBS::SetFullscreenMode(bool fullscreen)
         CheckMenuItem(hmenuMain, ID_FULLSCREENMODE, MF_UNCHECKED);
 
         // Disable always-on-top if needed
-        SetWindowPos(hwndMain, (App->bAlwaysOnTop)?HWND_TOPMOST:HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+        SetWindowPos(hwndMain, (App->bAlwaysOnTop)?HWND_TOPMOST:HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE| SWP_HIDEWINDOW);
     }
 
     // Workaround: If the window is maximized, resize isn't called, so do it manually
@@ -2159,4 +2170,95 @@ void OBS::RestartNetwork()
     App->network.reset(CreateRTMPPublisher());
 
     OSLeaveMutex(App->hStartupShutdownMutex);
+}
+
+void OBS::ResetMainWndState()
+{
+	monitors.Clear();
+	EnumDisplayMonitors(NULL, NULL, (MONITORENUMPROC)MonitorInfoEnumProc, (LPARAM)&monitors);
+
+	DISPLAY_DEVICE dd;
+	ZeroMemory(&dd, sizeof(dd));
+	dd.cb = sizeof(dd);
+
+	DEVMODE dm;
+	ZeroMemory(&dm, sizeof(dm));
+	dm.dmSize = sizeof(dm);
+
+	for (int i = 0; i <= monitors.Num(); i++)
+	{
+		EnumDisplayDevices(NULL, i, &dd, 0);
+		EnumDisplaySettings(dd.DeviceName, ENUM_CURRENT_SETTINGS, &dm);
+
+		if (dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
+		{
+			rcPrimary.right = dm.dmPelsWidth;
+			rcPrimary.bottom = dm.dmPelsHeight;
+			continue;
+		}
+
+		rcDisplay.left = dm.dmPosition.x;
+		rcDisplay.top = dm.dmPosition.y;
+		rcDisplay.right = rcDisplay.left + dm.dmPelsWidth;
+		rcDisplay.bottom = rcDisplay.top + dm.dmPelsHeight;
+	}
+
+ 	AppConfig->SetInt(TEXT("Video"), TEXT("BaseWidth"), rcPrimary.right - rcPrimary.left);
+ 	AppConfig->SetInt(TEXT("Video"), TEXT("BaseHeight"), rcPrimary.bottom - rcPrimary.top);
+
+	if (IsRunning() && bStreaming)
+	{
+		SetFullscreenMode(false);
+		SendMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_TESTSTREAM, 0), NULL);
+		if (monitors.Num() == 1 && !bDisplayResolutionChanged)
+		{
+			return;
+		}
+
+		bDisplayResolutionChanged = false;
+		Sleep(500);
+	}
+
+	if (monitors.Num() != 1)
+	{
+		SendMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_TESTSTREAM, 0), NULL);
+		SetFullscreenMode(true);
+	}
+}
+
+void OBS::CalculateViewportRegion(RECT& rcLeft, RECT& rcRight)
+{
+	int nDisplayWidth = rcDisplay.right - rcDisplay.left;
+	int nDisplayHeight = rcDisplay.bottom - rcDisplay.top;
+
+	int nSourceWidth = rcPrimary.right - rcPrimary.left;
+	int nSourceHeight = rcPrimary.bottom - rcPrimary.top;
+
+	float aspect = static_cast<float>(nSourceHeight) / nSourceWidth;
+
+	if (nDisplayWidth / 2 >= nSourceWidth)
+	{
+		rcLeft.left = (nDisplayWidth / 2 - nSourceWidth) / 2;
+		rcLeft.right = rcLeft.left + nSourceWidth;
+
+		rcRight.left = rcLeft.left + nDisplayWidth / 2;
+		rcRight.right = rcRight.left + nSourceWidth;
+
+		rcLeft.top = rcRight.top = (nDisplayHeight - nSourceHeight) / 2;
+		rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;;
+	}
+	else
+	{
+		nSourceWidth = nDisplayWidth / 2;
+		nSourceHeight = nDisplayWidth / 2 * aspect;
+
+		rcLeft.left = 0;
+		rcLeft.right = nDisplayWidth / 2;
+
+		rcRight.left = nDisplayWidth / 2;
+		rcRight.right = nDisplayWidth;
+
+		rcLeft.top = rcRight.top = (nDisplayHeight - nSourceHeight) / 2;
+		rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;;
+	}
 }

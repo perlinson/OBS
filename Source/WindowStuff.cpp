@@ -4317,7 +4317,14 @@ LRESULT CALLBACK OBS::OBSProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
                 return TRUE;
             }
-
+		case WM_DISPLAYCHANGE:
+			if (HIWORD(lParam) != (App->rcPrimary.right - App->rcPrimary.left) ||
+				LOWORD(lParam) != (App->rcPrimary.bottom - App->rcPrimary.top))
+			{
+				App->bDisplayResolutionChanged = true;
+			}
+			App->ResetMainWndState();
+			break;
         case WM_SIZE:
             {
                 RECT client;

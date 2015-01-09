@@ -755,7 +755,7 @@ private:
     String  strLanguage;
     bool    bTestStream;
     bool    bUseMultithreadedOptimizations;
-    bool    bRunning, bRecording, bRecordingReplayBuffer, bRecordingOnly, bStartingUp, bStreaming, bStreamFlushed = true, bKeepRecording;
+	bool    bRunning, bRecording, bRecordingReplayBuffer, bRecordingOnly, bStartingUp, bStreaming, bStreamFlushed = true, bKeepRecording, bDisplayResolutionChanged = false;
     bool    canRecord;
     volatile bool bShutdownVideoThread, bShutdownEncodeThread;
     int     renderFrameWidth, renderFrameHeight; // The size of the preview only
@@ -885,6 +885,9 @@ private:
     void MainCaptureLoop();
 
     void DrawPreview(const Vect2 &renderFrameSize, const Vect2 &renderFrameOffset, const Vect2 &renderFrameCtrlSize, int curRenderTarget, PreviewDrawType type);
+
+	// display region
+	RECT rcDisplay, rcPrimary;
 
     //---------------------------------------------------
     // main audio capture loop stuff
@@ -1319,6 +1322,8 @@ public:
     void AddPendingStream(ClosableStream *stream, std::function<void()> finishedCallback = {});
     void AddPendingStreamThread(HANDLE thread);
     void ClosePendingStreams();
+	void ResetMainWndState();
+	void CalculateViewportRegion(RECT& rcLeft, RECT& rcRight);
 };
 
 LONG CALLBACK OBSExceptionHandler (PEXCEPTION_POINTERS exceptionInfo);

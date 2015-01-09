@@ -308,12 +308,12 @@ void __cdecl AppWarning(const TCHAR *format, ...)
     // The debug output window contains the warning that has occured.
     //------------------------------------------------------
 
-#if defined(_DEBUG) && defined(_WIN32)
-    if(bDebugBreak && OSDebuggerPresent())
-    {
-        ProgramBreak();
-    }
-#endif
+//#if defined(_DEBUG) && defined(_WIN32)
+//    if(bDebugBreak && OSDebuggerPresent())
+//    {
+//        ProgramBreak();
+//    }
+//#endif
 
     StringLog.Append(strOut);
 }
