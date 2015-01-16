@@ -3556,6 +3556,9 @@ LRESULT CALLBACK OBS::OBSProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 {
     switch(message)
     {
+		case WM_CREATE:
+			SetTimer(hwnd, 1, 1000, NULL);
+			break;
         case WM_COMMAND:
             switch(LOWORD(wParam))
             {
@@ -4344,9 +4347,10 @@ LRESULT CALLBACK OBS::OBSProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
                     if(!App->bDragResize)
                         App->bSizeChanging = false;
                 }
-                else if (wParam == SIZE_MINIMIZED && AppConfig->GetInt(TEXT("General"), TEXT("MinimizeToNotificationArea"), 0) != 0)
+                else if (wParam == SIZE_MINIMIZED /*&& AppConfig->GetInt(TEXT("General"), TEXT("MinimizeToNotificationArea"), 0) != 0*/)
                 {
-                    ShowWindow(hwnd, SW_HIDE);
+					return TRUE;
+                    //ShowWindow(hwnd, SW_HIDE);
                 }
                 break;
             }
@@ -4506,7 +4510,16 @@ LRESULT CALLBACK OBS::OBSProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
         case WM_CLOSE:
             PostQuitMessage(0);
             break;
-
+		case WM_TIMER:
+			{
+					String strOutString;
+					strOutString << TEXT("FPS: ") << IntString(App->captureFPS);
+					OutputDebugString(strOutString);
+			}
+			break;
+		case WM_DESTROY:
+			KillTimer(hwnd, 1);
+			break;
         default:
             if (App && message == App->wmExplorerRestarted)
             {

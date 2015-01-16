@@ -283,7 +283,7 @@ OBS::OBS()
 
     bFullscreenMode = false;
 
-    hwndMain = CreateWindowEx(WS_EX_CONTROLPARENT|WS_EX_WINDOWEDGE|(LocaleIsRTL() ? WS_EX_LAYOUTRTL : 0), OBS_WINDOW_CLASS, GetApplicationName(),
+    hwndMain = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_CONTROLPARENT|WS_EX_WINDOWEDGE|(LocaleIsRTL() ? WS_EX_LAYOUTRTL : 0), OBS_WINDOW_CLASS, GetApplicationName(),
         WS_OVERLAPPED | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN,
         x, y, cx, cy, NULL, NULL, hinstMain, NULL);
     if(!hwndMain)
@@ -1885,6 +1885,8 @@ void OBS::DrawStatusBar(DRAWITEMSTRUCT &dis)
             SetTextColor(hdcTemp, color);
             SetBkMode(hdcTemp, TRANSPARENT);
             DrawText(hdcTemp, strOutString, strOutString.Length(), &rc, DT_VCENTER|DT_SINGLELINE|DT_LEFT);
+
+			OutputDebugString(strOutString);
         }
     }
 
@@ -2190,17 +2192,22 @@ void OBS::ResetMainWndState()
 		EnumDisplayDevices(NULL, i, &dd, 0);
 		EnumDisplaySettings(dd.DeviceName, ENUM_CURRENT_SETTINGS, &dm);
 
-		if (dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
+		if ((dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP) && 
+			(dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE))
 		{
 			rcPrimary.right = dm.dmPelsWidth;
 			rcPrimary.bottom = dm.dmPelsHeight;
 			continue;
 		}
 
-		rcDisplay.left = dm.dmPosition.x;
-		rcDisplay.top = dm.dmPosition.y;
-		rcDisplay.right = rcDisplay.left + dm.dmPelsWidth;
-		rcDisplay.bottom = rcDisplay.top + dm.dmPelsHeight;
+		if ((dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP) &&
+			!(dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE))
+		{
+			rcDisplay.left = dm.dmPosition.x;
+			rcDisplay.top = dm.dmPosition.y;
+			rcDisplay.right = rcDisplay.left + dm.dmPelsWidth;
+			rcDisplay.bottom = rcDisplay.top + dm.dmPelsHeight;
+		}
 	}
 
  	AppConfig->SetInt(TEXT("Video"), TEXT("BaseWidth"), rcPrimary.right - rcPrimary.left);
