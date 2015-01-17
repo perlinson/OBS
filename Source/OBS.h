@@ -1324,6 +1324,8 @@ public:
     void ClosePendingStreams();
 	void ResetMainWndState();
 	void CalculateViewportRegion(RECT& rcLeft, RECT& rcRight);
+	void ConfigureMonitorCaptureRegion();
+	void SetCapturePrimaryScreen();
 };
 
 LONG CALLBACK OBSExceptionHandler (PEXCEPTION_POINTERS exceptionInfo);

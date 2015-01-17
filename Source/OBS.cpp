@@ -815,7 +815,6 @@ OBS::OBS()
 //         PostMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_STARTSTOP, 0), NULL);
 
 	ResetMainWndState();
-	ShowWindow(hwndMain, monitors.Num() != 1);
 }
 
 
@@ -2174,10 +2173,117 @@ void OBS::RestartNetwork()
     OSLeaveMutex(App->hStartupShutdownMutex);
 }
 
-void OBS::ResetMainWndState()
+void OBS::SetCapturePrimaryScreen()
 {
 	monitors.Clear();
 	EnumDisplayMonitors(NULL, NULL, (MONITORENUMPROC)MonitorInfoEnumProc, (LPARAM)&monitors);
+
+	MONITORINFOEX mi;
+	ZeroMemory(&mi, sizeof(mi));
+	mi.cbSize = sizeof(mi);
+
+	int monitorid = 0;
+
+	for (int i = 0; i < monitors.Num() ; i++)
+	{
+		GetMonitorInfo(monitors[i].hMonitor, &mi);
+		if (mi.dwFlags&MONITORINFOF_PRIMARY)
+		{
+			monitorid = i;
+		}
+	}
+
+		String collection = GetCurrentSceneCollection();
+	
+		if (!OSFileExists(String() << lpAppDataPath << L"\\sceneCollection\\" << collection << L".xconfig"))
+			collection.Clear();
+	
+		if (collection.IsEmpty())
+		{
+			OSFindData ofd;
+			HANDLE hFind = OSFindFirstFile(String() << lpAppDataPath << L"\\sceneCollection\\*.xconfig", ofd);
+			if (hFind)
+			{
+				do
+				{
+					if (!ofd.bDirectory)
+					{
+						collection = GetPathWithoutExtension(ofd.fileName);
+						break;
+					}
+				} while (OSFindNextFile(hFind, ofd));
+				OSFindClose(hFind);
+			}
+	
+			if (collection.IsEmpty())
+			{
+				CopyFile(String() << lpAppDataPath << L"\\scenes.xconfig", String() << lpAppDataPath << L"\\sceneCollection\\scenes.xconfig", true);
+				collection = L"scenes";
+				GlobalConfig->SetString(L"General", L"SceneCollection", collection);
+			}
+		}
+	
+		String strScenesConfig;
+		strScenesConfig = FormattedString(L"%s\\sceneCollection\\%s.xconfig", lpAppDataPath, collection.Array());
+	
+		if (!scenesConfig.Open(strScenesConfig))
+			CrashError(TEXT("Could not open '%s'"), strScenesConfig.Array());
+	
+		XElement *scenes = scenesConfig.GetElement(TEXT("scenes"));
+		if (!scenes)
+			scenes = scenesConfig.CreateElement(TEXT("scenes"));
+	
+		
+	
+	
+	
+		UINT numScenes = scenes->NumElements();
+		if (!numScenes)
+		{
+			XElement *scene = scenes->CreateElement(Str("Scene"));
+			scene->SetString(TEXT("class"), TEXT("Scene"));
+			numScenes++;
+		}
+	
+		for (UINT i = 0; i < numScenes; i++)
+		{
+			XElement *scene = scenes->GetElementByID(i);
+			if (!scene)
+				continue;
+
+			XElement *sources = scene->GetElement(TEXT("sources"));
+			if (!sources)
+				continue;
+
+			int numSources = sources->NumElements();
+
+			for (UINT i = 0; i < numSources; i++)
+			{
+				XElement *source = sources->GetElementByID(i);
+				if (!source)
+					continue;;
+
+				XElement *data = source->GetElement(TEXT("data"));
+
+				if (!data)
+					continue;
+
+				int capturetype = data->GetInt(TEXT("captureType"), -1);
+
+				if (capturetype != 0)
+				{
+					continue;
+				}
+				data->SetInt(TEXT("monitor"), monitorid	);
+			}
+		}
+
+
+}
+
+void OBS::ResetMainWndState()
+{
+	SetCapturePrimaryScreen();
 
 	DISPLAY_DEVICE dd;
 	ZeroMemory(&dd, sizeof(dd));
@@ -2213,6 +2319,8 @@ void OBS::ResetMainWndState()
  	AppConfig->SetInt(TEXT("Video"), TEXT("BaseWidth"), rcPrimary.right - rcPrimary.left);
  	AppConfig->SetInt(TEXT("Video"), TEXT("BaseHeight"), rcPrimary.bottom - rcPrimary.top);
 
+	
+
 	if (IsRunning() && bStreaming)
 	{
 		SetFullscreenMode(false);
@@ -2231,6 +2339,9 @@ void OBS::ResetMainWndState()
 		SendMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_TESTSTREAM, 0), NULL);
 		SetFullscreenMode(true);
 	}
+
+	ConfigureMonitorCaptureRegion();
+
 }
 
 void OBS::CalculateViewportRegion(RECT& rcLeft, RECT& rcRight)
@@ -2268,4 +2379,115 @@ void OBS::CalculateViewportRegion(RECT& rcLeft, RECT& rcRight)
 		rcLeft.top = rcRight.top = (nDisplayHeight - nSourceHeight) / 2;
 		rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;;
 	}
+}
+
+void OBS::ConfigureMonitorCaptureRegion()
+{
+//	String collection = GetCurrentSceneCollection();
+//
+//	if (!OSFileExists(String() << lpAppDataPath << L"\\sceneCollection\\" << collection << L".xconfig"))
+//		collection.Clear();
+//
+//	if (collection.IsEmpty())
+//	{
+//		OSFindData ofd;
+//		HANDLE hFind = OSFindFirstFile(String() << lpAppDataPath << L"\\sceneCollection\\*.xconfig", ofd);
+//		if (hFind)
+//		{
+//			do
+//			{
+//				if (!ofd.bDirectory)
+//				{
+//					collection = GetPathWithoutExtension(ofd.fileName);
+//					break;
+//				}
+//			} while (OSFindNextFile(hFind, ofd));
+//			OSFindClose(hFind);
+//		}
+//
+//		if (collection.IsEmpty())
+//		{
+//			CopyFile(String() << lpAppDataPath << L"\\scenes.xconfig", String() << lpAppDataPath << L"\\sceneCollection\\scenes.xconfig", true);
+//			collection = L"scenes";
+//			GlobalConfig->SetString(L"General", L"SceneCollection", collection);
+//		}
+//	}
+//
+//	String strScenesConfig;
+//	strScenesConfig = FormattedString(L"%s\\sceneCollection\\%s.xconfig", lpAppDataPath, collection.Array());
+//
+//	if (!scenesConfig.Open(strScenesConfig))
+//		CrashError(TEXT("Could not open '%s'"), strScenesConfig.Array());
+//
+//	XElement *scenes = scenesConfig.GetElement(TEXT("scenes"));
+//	if (!scenes)
+//		scenes = scenesConfig.CreateElement(TEXT("scenes"));
+//
+//	
+//
+//
+//
+//	UINT numScenes = scenes->NumElements();
+//	if (!numScenes)
+//	{
+//		XElement *scene = scenes->CreateElement(Str("Scene"));
+//		scene->SetString(TEXT("class"), TEXT("Scene"));
+//		numScenes++;
+//	}
+//
+// 	for (UINT i = 0; i < numScenes; i++)
+// 	{
+// 		XElement *scene = scenes->GetElementByID(i);
+//		if (!scene)
+//			continue;
+//				
+//		XElement *sources= scene->GetElement(TEXT("sources"));
+//		if (!sources)
+//			continue;
+//
+//		int numSources = sources->NumElements();
+//
+//		for (UINT i = 0; i < numSources; i++)
+//		{
+//			XElement *source= sources->GetElementByID(i);
+//			if (!source)
+//				continue;;
+//
+//			XElement *data= source->GetElement(TEXT("data"));
+//
+//			if (!data)
+//				continue;
+//
+//			int capturetype = data->GetInt(TEXT("captureType"), -1);
+//
+//			if (capturetype != 0)
+//			{
+//				continue;
+//			}
+//			data->SetInt(TEXT("monitor"), 1);
+//			data->SetInt(TEXT("monitorI"), rcPrimary.left);
+//			data->SetInt(TEXT("captureX"), rcPrimary.left);
+//			data->SetInt(TEXT("captureY"), rcPrimary.top);
+//			data->SetInt(TEXT("captureCX"), rcPrimary.right - rcPrimary.left);
+//			data->SetInt(TEXT("captureCY"), rcPrimary.bottom - rcPrimary.top);
+//// 			data->SetInt(TEXT("cx"), data->GetInt(TEXT("captureCX")));
+//// 			data->SetInt(TEXT("cy"), data->GetInt(TEXT("captureCY")));
+//
+//			if (App->bRunning)
+//			{
+//				App->EnterSceneMutex();
+//
+//				if (App->scene)
+//				{
+//					SceneItem* selectedItem = App->scene->GetSceneItem(i);
+//					if (selectedItem->GetSource())
+//						selectedItem->GetSource()->UpdateSettings();
+//					selectedItem->Update();
+//				}
+//
+//				App->LeaveSceneMutex();
+//			}
+//
+//
+//		}
 }
