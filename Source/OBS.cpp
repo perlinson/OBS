@@ -282,8 +282,8 @@ OBS::OBS()
     bPanelVisibleProcessed = false; // Force immediate process
 
     bFullscreenMode = false;
-
-    hwndMain = CreateWindowEx(WS_EX_CONTROLPARENT|WS_EX_WINDOWEDGE|(LocaleIsRTL() ? WS_EX_LAYOUTRTL : 0), OBS_WINDOW_CLASS, GetApplicationName(),
+	bIn2DMode		= FALSE;
+	hwndMain = CreateWindowEx(WS_EX_CONTROLPARENT | WS_EX_WINDOWEDGE | (LocaleIsRTL() ? WS_EX_LAYOUTRTL : 0), OBS_WINDOW_CLASS, GetApplicationName(),
         WS_OVERLAPPED | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN,
         x, y, cx, cy, NULL, NULL, hinstMain, NULL);
     if(!hwndMain)
@@ -1073,8 +1073,8 @@ void OBS::SetFullscreenMode(bool fullscreen)
         SetWindowLong(hwndMain, GWL_STYLE, style & ~(WS_CAPTION | WS_THICKFRAME));
 
 		// Show borders
-		LONG exstyle = GetWindowLong(hwndMain, GWL_STYLE);
-		SetWindowLong(hwndMain, GWL_STYLE, exstyle | WS_EX_TOOLWINDOW);
+		LONG exstyle = GetWindowLong(hwndMain, GWL_EXSTYLE);
+		SetWindowLong(hwndMain, GWL_EXSTYLE, exstyle | WS_EX_TOOLWINDOW);
         // Hide menu and status bar
         SetMenu(hwndMain, NULL);
 
@@ -1542,68 +1542,23 @@ void OBS::ReloadIniSettings()
 
     //-------------------------------------------
     // hotkeys
-    QuickClearHotkey(pushToTalkHotkeyID);
-    QuickClearHotkey(pushToTalkHotkey2ID);
-    QuickClearHotkey(muteMicHotkeyID);
-    QuickClearHotkey(muteDesktopHotkeyID);
-    QuickClearHotkey(stopStreamHotkeyID);
-    QuickClearHotkey(startStreamHotkeyID);
-    QuickClearHotkey(stopRecordingHotkeyID);
-    QuickClearHotkey(startRecordingHotkeyID);
-    QuickClearHotkey(stopReplayBufferHotkeyID);
-    QuickClearHotkey(startReplayBufferHotkeyID);
-    QuickClearHotkey(saveReplayBufferHotkeyID);
-    QuickClearHotkey(recordFromReplayBufferHotkeyID);
 
-    bUsingPushToTalk = !!AppConfig->GetInt(L"Audio", L"UsePushToTalk") != 0;
-    DWORD hotkey = AppConfig->GetInt(TEXT("Audio"), TEXT("PushToTalkHotkey"));
-    DWORD hotkey2 = AppConfig->GetInt(TEXT("Audio"), TEXT("PushToTalkHotkey2"));
-    pushToTalkDelay = AppConfig->GetInt(TEXT("Audio"), TEXT("PushToTalkDelay"), 200);
-
-    if(bUsingPushToTalk && hotkey)
-        pushToTalkHotkeyID = API->CreateHotkey(hotkey, OBS::PushToTalkHotkey, NULL);
-    if(bUsingPushToTalk && hotkey2)
-        pushToTalkHotkey2ID = API->CreateHotkey(hotkey2, OBS::PushToTalkHotkey, NULL);
-
-    hotkey = AppConfig->GetInt(TEXT("Audio"), TEXT("MuteMicHotkey"));
-    if(hotkey)
-        muteMicHotkeyID = API->CreateHotkey(hotkey, OBS::MuteMicHotkey, NULL);
-
-    hotkey = AppConfig->GetInt(TEXT("Audio"), TEXT("MuteDesktopHotkey"));
-    if(hotkey)
-        muteDesktopHotkeyID = API->CreateHotkey(hotkey, OBS::MuteDesktopHotkey, NULL);
-
-    hotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("StopStreamHotkey"));
+    QuickClearHotkey(SwitchDisplayModeHotkeyID);
+	QuickClearHotkey(ZoomInSceneHotkeyID);
+	QuickClearHotkey(ZoomOutSceneHotkeyID);
+    DWORD hotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("SwitchDisplayModeHotkey"));
     if (hotkey)
-        stopStreamHotkeyID = API->CreateHotkey(hotkey, OBS::StopStreamHotkey, NULL);
+        SwitchDisplayModeHotkeyID = API->CreateHotkey(hotkey, OBS::SwitchDisplayMode, NULL);
 
-    hotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("StartStreamHotkey"));
-    if (hotkey)
-        startStreamHotkeyID = API->CreateHotkey(hotkey, OBS::StartStreamHotkey, NULL);
+	hotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("ZoomInScene"));
+	if (hotkey)
+		ZoomInSceneHotkeyID = API->CreateHotkey(hotkey, OBS::ZoomInScene, NULL);
 
-    hotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("StopRecordingHotkey"));
-    if (hotkey)
-        stopRecordingHotkeyID = API->CreateHotkey(hotkey, OBS::StopRecordingHotkey, NULL);
+	hotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("ZoomOutScene"));
+	if (hotkey)
+		ZoomOutSceneHotkeyID = API->CreateHotkey(hotkey, OBS::ZoomOutScene, NULL);
 
-    hotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("StartRecordingHotkey"));
-    if (hotkey)
-        startRecordingHotkeyID = API->CreateHotkey(hotkey, OBS::StartRecordingHotkey, NULL);
-
-    hotkey = AppConfig->GetInt(L"Publish", L"StopReplayBufferHotkey");
-    if (hotkey)
-        stopReplayBufferHotkeyID = API->CreateHotkey(hotkey, OBS::StopReplayBufferHotkey, NULL);
-
-    hotkey = AppConfig->GetInt(L"Publish", L"StartReplayBufferHotkey");
-    if (hotkey)
-        startReplayBufferHotkeyID = API->CreateHotkey(hotkey, OBS::StartReplayBufferHotkey, NULL);
-
-    hotkey = AppConfig->GetInt(L"Publish", L"SaveReplayBufferHotkey");
-    if (hotkey)
-        saveReplayBufferHotkeyID = API->CreateHotkey(hotkey, OBS::SaveReplayBufferHotkey, NULL);
-
-    hotkey = AppConfig->GetInt(L"Publish", L"RecordFromReplayBufferHotkey");
-    if (hotkey)
-        recordFromReplayBufferHotkeyID = API->CreateHotkey(hotkey, OBS::RecordFromReplayBufferHotkey, NULL);
+	
 
     //-------------------------------------------
     // Notification Area icon
@@ -2320,8 +2275,6 @@ void OBS::ResetMainWndState()
 
  	AppConfig->SetInt(TEXT("Video"), TEXT("BaseWidth"), rcPrimary.right - rcPrimary.left);
  	AppConfig->SetInt(TEXT("Video"), TEXT("BaseHeight"), rcPrimary.bottom - rcPrimary.top);
-	AppConfig->SetInt(TEXT("Video"), TEXT("BaseWidth"), rcPrimary.right - rcPrimary.left);
-	AppConfig->SetInt(TEXT("Video"), TEXT("BaseHeight"), rcPrimary.bottom - rcPrimary.top);
 	
 	//when under debug mode, never just comment the SetFullscreenMode(true)
 	//that occurs an error
@@ -2329,7 +2282,7 @@ void OBS::ResetMainWndState()
 
 	if (IsRunning() && bStreaming)
 	{
-		SetFullscreenMode(false);
+		//SetFullscreenMode(false);
 		SendMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_TESTSTREAM, 0), NULL);
 		if (monitors.Num() == 1 && !bDisplayResolutionChanged)
 		{
@@ -2343,14 +2296,11 @@ void OBS::ResetMainWndState()
 	if (monitors.Num() != 1)
 	{
 		SendMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_TESTSTREAM, 0), NULL);
-		SetFullscreenMode(true);
+		//SetFullscreenMode(true);
 	}
-
-	ConfigureMonitorCaptureRegion();
-
 }
 
-void OBS::CalculateViewportRegion(RECT& rcLeft, RECT& rcRight)
+void OBS::CalculateViewportRegion(RECT& rcLeft, RECT& rcRight, RECT& rcDstLeft, RECT& rcDstRight)
 {
 	int nDisplayWidth = rcDisplay.right - rcDisplay.left;
 	int nDisplayHeight = rcDisplay.bottom - rcDisplay.top;
@@ -2358,7 +2308,9 @@ void OBS::CalculateViewportRegion(RECT& rcLeft, RECT& rcRight)
 	int nSourceWidth = rcPrimary.right - rcPrimary.left;
 	int nSourceHeight = rcPrimary.bottom - rcPrimary.top;
 
-	float aspect = static_cast<float>(nSourceHeight) / nSourceWidth;
+	rcDstLeft = rcDstRight = rcDisplay;
+
+	float aspectSource = static_cast<float>(nSourceHeight) / nSourceWidth;
 
 	if (nDisplayWidth / 2 >= nSourceWidth)
 	{
@@ -2369,12 +2321,14 @@ void OBS::CalculateViewportRegion(RECT& rcLeft, RECT& rcRight)
 		rcRight.right = rcRight.left + nSourceWidth;
 
 		rcLeft.top = rcRight.top = (nDisplayHeight - nSourceHeight) / 2;
-		rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;;
+		rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;
+
+		rcDstLeft = rcDstRight = rcDisplay;
 	}
 	else
 	{
-		nSourceWidth = nDisplayWidth / 2;
-		nSourceHeight = nDisplayWidth / 2 * aspect;
+		nSourceWidth = scalefactor * nDisplayWidth / 2;
+		nSourceHeight = nSourceWidth * aspectSource;
 
 		rcLeft.left = 0;
 		rcLeft.right = nDisplayWidth / 2;
@@ -2383,117 +2337,109 @@ void OBS::CalculateViewportRegion(RECT& rcLeft, RECT& rcRight)
 		rcRight.right = nDisplayWidth;
 
 		rcLeft.top = rcRight.top = (nDisplayHeight - nSourceHeight) / 2;
-		rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;;
+		rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;
 	}
 }
 
-void OBS::ConfigureMonitorCaptureRegion()
+void OBS::SelectCorrectGameSource()
 {
-//	String collection = GetCurrentSceneCollection();
-//
-//	if (!OSFileExists(String() << lpAppDataPath << L"\\sceneCollection\\" << collection << L".xconfig"))
-//		collection.Clear();
-//
-//	if (collection.IsEmpty())
-//	{
-//		OSFindData ofd;
-//		HANDLE hFind = OSFindFirstFile(String() << lpAppDataPath << L"\\sceneCollection\\*.xconfig", ofd);
-//		if (hFind)
-//		{
-//			do
-//			{
-//				if (!ofd.bDirectory)
-//				{
-//					collection = GetPathWithoutExtension(ofd.fileName);
-//					break;
-//				}
-//			} while (OSFindNextFile(hFind, ofd));
-//			OSFindClose(hFind);
-//		}
-//
-//		if (collection.IsEmpty())
-//		{
-//			CopyFile(String() << lpAppDataPath << L"\\scenes.xconfig", String() << lpAppDataPath << L"\\sceneCollection\\scenes.xconfig", true);
-//			collection = L"scenes";
-//			GlobalConfig->SetString(L"General", L"SceneCollection", collection);
-//		}
-//	}
-//
-//	String strScenesConfig;
-//	strScenesConfig = FormattedString(L"%s\\sceneCollection\\%s.xconfig", lpAppDataPath, collection.Array());
-//
-//	if (!scenesConfig.Open(strScenesConfig))
-//		CrashError(TEXT("Could not open '%s'"), strScenesConfig.Array());
-//
-//	XElement *scenes = scenesConfig.GetElement(TEXT("scenes"));
-//	if (!scenes)
-//		scenes = scenesConfig.CreateElement(TEXT("scenes"));
-//
-//	
-//
-//
-//
-//	UINT numScenes = scenes->NumElements();
-//	if (!numScenes)
-//	{
-//		XElement *scene = scenes->CreateElement(Str("Scene"));
-//		scene->SetString(TEXT("class"), TEXT("Scene"));
-//		numScenes++;
-//	}
-//
-// 	for (UINT i = 0; i < numScenes; i++)
-// 	{
-// 		XElement *scene = scenes->GetElementByID(i);
-//		if (!scene)
-//			continue;
-//				
-//		XElement *sources= scene->GetElement(TEXT("sources"));
-//		if (!sources)
-//			continue;
-//
-//		int numSources = sources->NumElements();
-//
-//		for (UINT i = 0; i < numSources; i++)
-//		{
-//			XElement *source= sources->GetElementByID(i);
-//			if (!source)
-//				continue;;
-//
-//			XElement *data= source->GetElement(TEXT("data"));
-//
-//			if (!data)
-//				continue;
-//
-//			int capturetype = data->GetInt(TEXT("captureType"), -1);
-//
-//			if (capturetype != 0)
-//			{
-//				continue;
-//			}
-//			data->SetInt(TEXT("monitor"), 1);
-//			data->SetInt(TEXT("monitorI"), rcPrimary.left);
-//			data->SetInt(TEXT("captureX"), rcPrimary.left);
-//			data->SetInt(TEXT("captureY"), rcPrimary.top);
-//			data->SetInt(TEXT("captureCX"), rcPrimary.right - rcPrimary.left);
-//			data->SetInt(TEXT("captureCY"), rcPrimary.bottom - rcPrimary.top);
-//// 			data->SetInt(TEXT("cx"), data->GetInt(TEXT("captureCX")));
-//// 			data->SetInt(TEXT("cy"), data->GetInt(TEXT("captureCY")));
-//
-//			if (App->bRunning)
-//			{
-//				App->EnterSceneMutex();
-//
-//				if (App->scene)
-//				{
-//					SceneItem* selectedItem = App->scene->GetSceneItem(i);
-//					if (selectedItem->GetSource())
-//						selectedItem->GetSource()->UpdateSettings();
-//					selectedItem->Update();
-//				}
-//
-//				App->LeaveSceneMutex();
-//			}
-//
-//
-//		}
+	MONITORINFOEX mi;
+	ZeroMemory(&mi, sizeof(mi));
+	mi.cbSize = sizeof(mi);
+
+	int monitorid = 0;
+
+	for (int i = 0; i < monitors.Num(); i++)
+	{
+		GetMonitorInfo(monitors[i].hMonitor, &mi);
+		if (mi.dwFlags&MONITORINFOF_PRIMARY)
+		{
+			monitorid = i;
+		}
+	}
+
+	String collection = GetCurrentSceneCollection();
+
+	if (!OSFileExists(String() << lpAppDataPath << L"\\sceneCollection\\" << collection << L".xconfig"))
+		collection.Clear();
+
+	if (collection.IsEmpty())
+	{
+		OSFindData ofd;
+		HANDLE hFind = OSFindFirstFile(String() << lpAppDataPath << L"\\sceneCollection\\*.xconfig", ofd);
+		if (hFind)
+		{
+			do
+			{
+				if (!ofd.bDirectory)
+				{
+					collection = GetPathWithoutExtension(ofd.fileName);
+					break;
+				}
+			} while (OSFindNextFile(hFind, ofd));
+			OSFindClose(hFind);
+		}
+
+		if (collection.IsEmpty())
+		{
+			CopyFile(String() << lpAppDataPath << L"\\scenes.xconfig", String() << lpAppDataPath << L"\\sceneCollection\\scenes.xconfig", true);
+			collection = L"scenes";
+			GlobalConfig->SetString(L"General", L"SceneCollection", collection);
+		}
+	}
+
+	String strScenesConfig;
+	strScenesConfig = FormattedString(L"%s\\sceneCollection\\%s.xconfig", lpAppDataPath, collection.Array());
+
+	if (!scenesConfig.Open(strScenesConfig))
+		CrashError(TEXT("Could not open '%s'"), strScenesConfig.Array());
+
+	XElement *scenes = scenesConfig.GetElement(TEXT("scenes"));
+	if (!scenes)
+		scenes = scenesConfig.CreateElement(TEXT("scenes"));
+
+
+
+
+
+	UINT numScenes = scenes->NumElements();
+	if (!numScenes)
+	{
+		XElement *scene = scenes->CreateElement(Str("Scene"));
+		scene->SetString(TEXT("class"), TEXT("Scene"));
+		numScenes++;
+	}
+
+	for (UINT i = 0; i < numScenes; i++)
+	{
+		XElement *scene = scenes->GetElementByID(i);
+		if (!scene)
+			continue;
+
+		XElement *sources = scene->GetElement(TEXT("sources"));
+		if (!sources)
+			continue;
+
+		int numSources = sources->NumElements();
+
+		for (UINT i = 0; i < numSources; i++)
+		{
+			XElement *source = sources->GetElementByID(i);
+			if (!source)
+				continue;;
+
+			XElement *data = source->GetElement(TEXT("data"));
+
+			if (!data)
+				continue;
+
+			int capturetype = data->GetInt(TEXT("captureType"), -1);
+
+			if (capturetype != 0)
+			{
+				continue;
+			}
+			data->SetInt(TEXT("monitor"), monitorid);
+		}
+	}
 }

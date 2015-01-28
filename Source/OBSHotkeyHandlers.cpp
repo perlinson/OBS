@@ -20,155 +20,26 @@
 #include "Main.h"
 
 
-void STDCALL OBS::StartStreamHotkey(DWORD hotkey, UPARAM param, bool bDown)
+void STDCALL OBS::SwitchDisplayMode(DWORD hotkey, UPARAM param, bool bDown)
 {
-    if(App->bStopStreamHotkeyDown)
-        return;
-
-    if(App->bStartStreamHotkeyDown && !bDown)
-        App->bStartStreamHotkeyDown = false;
-    else if(!App->bRunning || !App->bStreaming)
-    {
-        if(App->bStartStreamHotkeyDown = bDown)
-            App->Start();
-    }
+	if (bDown)
+	{
+		App->bIn2DMode = !App->bIn2DMode;
+	}
 }
 
-void STDCALL OBS::StopStreamHotkey(DWORD hotkey, UPARAM param, bool bDown)
+void STDCALL OBS::ZoomInScene(DWORD hotkey, UPARAM param, bool bDown)
 {
-    if(App->bStartStreamHotkeyDown)
-        return;
-
-    if(App->bStopStreamHotkeyDown && !bDown)
-        App->bStopStreamHotkeyDown = false;
-    else if(App->bRunning)
-    {
-        if(App->bStopStreamHotkeyDown = bDown)
-            App->Stop();
-    }
+	if (bDown)
+	{
+		App->ZoomIn();
+	}
 }
 
-void STDCALL OBS::StartRecordingHotkey(DWORD hotkey, UPARAM param, bool bDown)
+void STDCALL OBS::ZoomOutScene(DWORD hotkey, UPARAM param, bool bDown)
 {
-    if (App->bStopRecordingHotkeyDown)
-        return;
-
-    if (App->bStartRecordingHotkeyDown && !bDown)
-        App->bStartRecordingHotkeyDown = false;
-    else if (!App->bRecording && App->canRecord)
-    {
-        if (!(App->bStartRecordingHotkeyDown = bDown))
-            return;
-
-        if (!App->bRunning && !App->bStreaming)
-            App->Start(true);
-
-        App->StartRecording(true);
-    }
-}
-
-void STDCALL OBS::StopRecordingHotkey(DWORD hotkey, UPARAM param, bool bDown)
-{
-    if (App->bStartRecordingHotkeyDown)
-        return;
-
-    if (App->bStopRecordingHotkeyDown && !bDown)
-        App->bStopRecordingHotkeyDown = false;
-    else if (App->bRunning)
-    {
-        if (App->bStopRecordingHotkeyDown = bDown)
-            App->StopRecording();
-    }
-}
-
-void STDCALL OBS::StartReplayBufferHotkey(DWORD hotkey, UPARAM param, bool bDown)
-{
-    if (App->bStopReplayBufferHotkeyDown)
-        return;
-
-    if (App->bStartReplayBufferHotkeyDown && !bDown)
-        App->bStartReplayBufferHotkeyDown = false;
-    else if (!App->bRecordingReplayBuffer && App->canRecord)
-    {
-        if (!(App->bStartReplayBufferHotkeyDown = bDown))
-            return;
-
-        App->StartReplayBuffer();
-    }
-}
-
-void STDCALL OBS::StopReplayBufferHotkey(DWORD hotkey, UPARAM param, bool bDown)
-{
-    if (App->bStartReplayBufferHotkeyDown)
-        return;
-
-    if (App->bStopReplayBufferHotkeyDown && !bDown)
-        App->bStopReplayBufferHotkeyDown = false;
-    else if (App->bRunning)
-    {
-        if (App->bStopReplayBufferHotkeyDown = bDown)
-            App->StopReplayBuffer();
-    }
-}
-
-void STDCALL OBS::SaveReplayBufferHotkey(DWORD hotkey, UPARAM param, bool bDown)
-{
-    if (App->bSaveReplayBufferHotkeyDown && !bDown)
-        App->bSaveReplayBufferHotkeyDown = false;
-    else if (App->bRunning)
-    {
-        if (App->bSaveReplayBufferHotkeyDown = bDown)
-            SaveReplayBuffer(App->replayBuffer, (DWORD)(App->GetVideoTime() - App->firstFrameTimestamp));
-    }
-}
-
-void StartRecordingFromReplayBuffer(ReplayBuffer *rb);
-
-void STDCALL OBS::RecordFromReplayBufferHotkey(DWORD hotkey, UPARAM param, bool bDown)
-{
-    if (App->bRecordFromReplayBufferHotkeyDown && !bDown)
-        App->bRecordFromReplayBufferHotkeyDown = false;
-    else if (App->bRunning)
-    {
-        if (App->bRecordFromReplayBufferHotkeyDown = bDown)
-            StartRecordingFromReplayBuffer(App->replayBuffer);
-    }
-}
-
-void STDCALL OBS::PushToTalkHotkey(DWORD hotkey, UPARAM param, bool bDown)
-{
-    if(bDown)
-    {
-        App->pushToTalkDown++;
-        App->bPushToTalkOn = true;
-    }
-    else
-    {
-        App->pushToTalkDown--;
-        if(!App->pushToTalkDown && App->pushToTalkDelay <= 0)
-            App->bPushToTalkOn = false;
-    }
-
-    App->pushToTalkTimeLeft = App->pushToTalkDelay*1000000;
-    OSDebugOut(TEXT("Actual delay: %d"), App->pushToTalkDelay);
-}
-
-
-void STDCALL OBS::MuteMicHotkey(DWORD hotkey, UPARAM param, bool bDown)
-{
-    if(!bDown) return;
-
-    if(App->micAudio)
-    {
-        App->micVol = ToggleVolumeControlMute(GetDlgItem(hwndMain, ID_MICVOLUME));
-        App->ReportMicVolumeChange(App->micVol, App->micVol < VOLN_MUTELEVEL, true);
-    }
-}
-
-void STDCALL OBS::MuteDesktopHotkey(DWORD hotkey, UPARAM param, bool bDown)
-{
-    if(!bDown) return;
-
-    App->desktopVol = ToggleVolumeControlMute(GetDlgItem(hwndMain, ID_DESKTOPVOLUME));
-    App->ReportDesktopVolumeChange(App->desktopVol, App->desktopVol < VOLN_MUTELEVEL, true);
+	if (bDown)
+	{
+		App->ZoomOut();
+	}
 }

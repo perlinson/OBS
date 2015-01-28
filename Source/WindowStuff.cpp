@@ -4520,6 +4520,11 @@ LRESULT CALLBACK OBS::OBSProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		case WM_DESTROY:
 			KillTimer(hwnd, 1);
 			break;
+		case WM_COPYDATA:
+			{
+				App->bIn2DMode = LOWORD(wParam);
+			}
+			break;
         default:
             if (App && message == App->wmExplorerRestarted)
             {

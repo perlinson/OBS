@@ -917,24 +917,11 @@ private:
     bool bUsingPushToTalk, bPushToTalkOn;
     long long pushToTalkDelay, pushToTalkTimeLeft;
 
-    UINT pushToTalkHotkeyID, pushToTalkHotkey2ID;
-    UINT muteMicHotkeyID;
-    UINT muteDesktopHotkeyID;
-    UINT startStreamHotkeyID;
-    UINT stopStreamHotkeyID;
-    UINT startRecordingHotkeyID;
-    UINT stopRecordingHotkeyID;
-    UINT startReplayBufferHotkeyID;
-    UINT stopReplayBufferHotkeyID;
-    UINT saveReplayBufferHotkeyID;
-    UINT recordFromReplayBufferHotkeyID;
-
-    bool bStartStreamHotkeyDown, bStopStreamHotkeyDown;
-    bool bStartRecordingHotkeyDown, bStopRecordingHotkeyDown;
-    bool bStartReplayBufferHotkeyDown, bStopReplayBufferHotkeyDown;
-    bool bSaveReplayBufferHotkeyDown;
-    bool bRecordFromReplayBufferHotkeyDown;
-
+    UINT SwitchDisplayModeHotkeyID;
+	UINT ZoomInSceneHotkeyID;
+	UINT ZoomOutSceneHotkeyID;
+	BOOL bIn2DMode;
+	float scalefactor = 1.0f;
     static DWORD STDCALL MainAudioThread(LPVOID lpUnused);
     bool QueryAudioBuffers(bool bQueriedDesktopDebugParam);
     bool QueryNewAudio();
@@ -1043,19 +1030,9 @@ private:
     void StartReplayBuffer();
     void StopReplayBuffer(bool immediate=false);
 
-    static void STDCALL StartStreamHotkey(DWORD hotkey, UPARAM param, bool bDown);
-    static void STDCALL StopStreamHotkey(DWORD hotkey, UPARAM param, bool bDown);
-    static void STDCALL StartRecordingHotkey(DWORD hotkey, UPARAM param, bool bDown);
-    static void STDCALL StopRecordingHotkey(DWORD hotkey, UPARAM param, bool bDown);
-    static void STDCALL StartReplayBufferHotkey(DWORD hotkey, UPARAM param, bool bDown);
-    static void STDCALL StopReplayBufferHotkey(DWORD hotkey, UPARAM param, bool bDown);
-    static void STDCALL SaveReplayBufferHotkey(DWORD hotkey, UPARAM param, bool bDown);
-    static void STDCALL RecordFromReplayBufferHotkey(DWORD hotkey, UPARAM param, bool bDown);
-
-    static void STDCALL PushToTalkHotkey(DWORD hotkey, UPARAM param, bool bDown);
-    static void STDCALL MuteMicHotkey(DWORD hotkey, UPARAM param, bool bDown);
-    static void STDCALL MuteDesktopHotkey(DWORD hotkey, UPARAM param, bool bDown);
-
+    static void STDCALL SwitchDisplayMode(DWORD hotkey, UPARAM param, bool bDown);
+	static void STDCALL ZoomInScene(DWORD hotkey, UPARAM param, bool bDown);
+	static void STDCALL ZoomOutScene(DWORD hotkey, UPARAM param, bool bDown);
     void UpdateAudioMeters();
 
     static void GetNewSceneName(String &strScene);
@@ -1323,9 +1300,12 @@ public:
     void AddPendingStreamThread(HANDLE thread);
     void ClosePendingStreams();
 	void ResetMainWndState();
-	void CalculateViewportRegion(RECT& rcLeft, RECT& rcRight);
-	void ConfigureMonitorCaptureRegion();
+	void CalculateViewportRegion(RECT& rcLeft, RECT& rcRight, RECT& rcDstLeft, RECT& rcDstRight);
 	void SetCapturePrimaryScreen();
+
+	void ZoomIn();
+	void ZoomOut();
+	void SelectCorrectGameSource();
 };
 
 LONG CALLBACK OBSExceptionHandler (PEXCEPTION_POINTERS exceptionInfo);

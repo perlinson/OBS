@@ -50,7 +50,7 @@ void SettingsHotkeys::DestroyPane()
 
 void SettingsHotkeys::ApplySettings()
 {
-    auto update_hotkey = [&](decltype(App->pushToTalkHotkeyID) &hotkey, int dlg_id, CTSTR section, CTSTR key, OBSHOTKEYPROC proc, bool enabled)
+    auto update_hotkey = [&](decltype(App->SwitchDisplayModeHotkeyID) &hotkey, int dlg_id, CTSTR section, CTSTR key, OBSHOTKEYPROC proc, bool enabled)
     {
         if (hotkey)
         {
@@ -72,51 +72,20 @@ void SettingsHotkeys::ApplySettings()
     App->bUsingPushToTalk = SendMessage(GetDlgItem(hwnd, IDC_PUSHTOTALK), BM_GETCHECK, 0, 0) == BST_CHECKED;
     AppConfig->SetInt(L"Audio", L"UsePushToTalk", App->bUsingPushToTalk);
 
-    //------------------------------------
+    //------------------------------------------
 
-    update_hotkey(App->pushToTalkHotkeyID, IDC_PUSHTOTALKHOTKEY, L"Audio", L"PushToTalkHotkey", OBS::PushToTalkHotkey, App->bUsingPushToTalk);
-    update_hotkey(App->pushToTalkHotkey2ID, IDC_PUSHTOTALKHOTKEY2, L"Audio", L"PushToTalkHotkey2", OBS::PushToTalkHotkey, App->bUsingPushToTalk);
-
-    //------------------------------------
-
-    update_hotkey(App->muteMicHotkeyID, IDC_MUTEMICHOTKEY, L"Audio", L"MuteMicHotkey", OBS::MuteMicHotkey, true);
-
-    //------------------------------------
-
-    update_hotkey(App->muteDesktopHotkeyID, IDC_MUTEDESKTOPHOTKEY, L"Audio", L"MuteDesktopHotkey", OBS::MuteDesktopHotkey, true);
+    update_hotkey(App->SwitchDisplayModeHotkeyID, IDC_SWITCHDISPLAYMODEHOTKEY, L"Publish", L"SwitchDisplayModeHotkey", OBS::SwitchDisplayMode, true);
 
     //------------------------------------------
 
-    update_hotkey(App->stopStreamHotkeyID, IDC_STOPSTREAMHOTKEY, L"Publish", L"StopStreamHotkey", OBS::StopStreamHotkey, true);
+	update_hotkey(App->ZoomInSceneHotkeyID, IDC_ZOOMINSCENEHOTKEY, L"Publish", L"ZoomInSceneHotkey", OBS::ZoomInScene, true);
+	
 
-    //------------------------------------------
+	//------------------------------------------
 
-    update_hotkey(App->startStreamHotkeyID, IDC_STARTSTREAMHOTKEY, L"Publish", L"StartStreamHotkey", OBS::StartStreamHotkey, true);
+	update_hotkey(App->ZoomOutSceneHotkeyID, IDC_ZOOMOUTSCENEHOTKEY, L"Publish", L"ZoomOutSceneHotkey", OBS::ZoomOutScene, true);
 
-    //------------------------------------------
-
-    update_hotkey(App->stopRecordingHotkeyID, IDC_STOPRECORDINGHOTKEY, L"Publish", L"StopRecordingHotkey", OBS::StopRecordingHotkey, true);
-
-    //------------------------------------------
-
-    update_hotkey(App->startRecordingHotkeyID, IDC_STARTRECORDINGHOTKEY, L"Publish", L"StartRecordingHotkey", OBS::StartRecordingHotkey, true);
-
-    //------------------------------------------
-
-    update_hotkey(App->stopReplayBufferHotkeyID, IDC_STOPREPLAYBUFFERHOTKEY, L"Publish", L"StopReplayBufferHotkey", OBS::StopReplayBufferHotkey, true);
-
-    //------------------------------------------
-
-    update_hotkey(App->startReplayBufferHotkeyID, IDC_STARTREPLAYBUFFERHOTKEY, L"Publish", L"StartReplayBufferHotkey", OBS::StartReplayBufferHotkey, true);
-
-    //------------------------------------------
-
-    update_hotkey(App->saveReplayBufferHotkeyID, IDC_SAVEREPLAYBUFFERHOTKEY, L"Publish", L"SaveReplayBufferHotkey", OBS::SaveReplayBufferHotkey, true);
-
-    //------------------------------------------
-
-    update_hotkey(App->recordFromReplayBufferHotkeyID, IDC_RECORDFROMREPLAYBUFFERHOTKEY, L"Publish", L"RecordFromReplayBufferHotkey", OBS::RecordFromReplayBufferHotkey, true);
-
+	//------------------------------------------
 }
 
 void SettingsHotkeys::CancelSettings()
@@ -160,43 +129,18 @@ INT_PTR SettingsHotkeys::ProcMessage(UINT message, WPARAM wParam, LPARAM lParam)
 
         //--------------------------------------------
 
-        DWORD startHotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("StartStreamHotkey"));
-        SendMessage(GetDlgItem(hwnd, IDC_STARTSTREAMHOTKEY), HKM_SETHOTKEY, startHotkey, 0);
+        DWORD startHotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("SwitchDisplayModeHotkey"));
+        SendMessage(GetDlgItem(hwnd, IDC_SWITCHDISPLAYMODEHOTKEY), HKM_SETHOTKEY, startHotkey, 0);
 
         //--------------------------------------------
 
-        DWORD stopHotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("StopStreamHotkey"));
-        SendMessage(GetDlgItem(hwnd, IDC_STOPSTREAMHOTKEY), HKM_SETHOTKEY, stopHotkey, 0);
+		DWORD ZoomInSceneHotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("ZoomInSceneHotkey"));
+        SendMessage(GetDlgItem(hwnd, IDC_ZOOMINSCENEHOTKEY), HKM_SETHOTKEY, ZoomInSceneHotkey, 0);
 
         //--------------------------------------------
 
-        startHotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("StartRecordingHotkey"));
-        SendMessage(GetDlgItem(hwnd, IDC_STARTRECORDINGHOTKEY), HKM_SETHOTKEY, startHotkey, 0);
-
-        //--------------------------------------------
-
-        stopHotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("StopRecordingHotkey"));
-        SendMessage(GetDlgItem(hwnd, IDC_STOPRECORDINGHOTKEY), HKM_SETHOTKEY, stopHotkey, 0);
-
-        //--------------------------------------------
-
-        startHotkey = AppConfig->GetInt(L"Publish", L"StartReplayBufferHotkey");
-        SendMessage(GetDlgItem(hwnd, IDC_STARTREPLAYBUFFERHOTKEY), HKM_SETHOTKEY, startHotkey, 0);
-
-        //--------------------------------------------
-
-        stopHotkey = AppConfig->GetInt(L"Publish", L"StopReplayBufferHotkey");
-        SendMessage(GetDlgItem(hwnd, IDC_STOPREPLAYBUFFERHOTKEY), HKM_SETHOTKEY, stopHotkey, 0);
-
-        //--------------------------------------------
-
-        DWORD saveReplayBufferHotkey = AppConfig->GetInt(L"Publish", L"SaveReplayBufferHotkey");
-        SendMessage(GetDlgItem(hwnd, IDC_SAVEREPLAYBUFFERHOTKEY), HKM_SETHOTKEY, saveReplayBufferHotkey, 0);
-
-        //--------------------------------------------
-
-        DWORD recordFromReplayBufferHotkey = AppConfig->GetInt(L"Publish", L"RecordFromReplayBufferHotkey");
-        SendMessage(GetDlgItem(hwnd, IDC_RECORDFROMREPLAYBUFFERHOTKEY), HKM_SETHOTKEY, recordFromReplayBufferHotkey, 0);
+		DWORD ZoomOutSceneHotkey = AppConfig->GetInt(L"Publish", L"ZoomOutSceneHotkey");
+		SendMessage(GetDlgItem(hwnd, IDC_ZOOMOUTSCENEHOTKEY), HKM_SETHOTKEY, ZoomOutSceneHotkey, 0);
 
         //--------------------------------------------
 
@@ -217,14 +161,14 @@ INT_PTR SettingsHotkeys::ProcMessage(UINT message, WPARAM wParam, LPARAM lParam)
         case IDC_PUSHTOTALKHOTKEY2:
         case IDC_MUTEMICHOTKEY:
         case IDC_MUTEDESKTOPHOTKEY:
-        case IDC_STARTSTREAMHOTKEY:
-        case IDC_STOPSTREAMHOTKEY:
+        case IDC_SWITCHDISPLAYMODEHOTKEY:
+        case IDC_ZOOMINSCENEHOTKEY:
         case IDC_STARTRECORDINGHOTKEY:
         case IDC_STOPRECORDINGHOTKEY:
         case IDC_STARTREPLAYBUFFERHOTKEY:
         case IDC_STOPREPLAYBUFFERHOTKEY:
         case IDC_SAVEREPLAYBUFFERHOTKEY:
-        case IDC_RECORDFROMREPLAYBUFFERHOTKEY:
+        case IDC_ZOOMOUTSCENEHOTKEY:
             if (HIWORD(wParam) == EN_CHANGE)
                 SetChangedSettings(true);
             break;
@@ -261,12 +205,12 @@ INT_PTR SettingsHotkeys::ProcMessage(UINT message, WPARAM wParam, LPARAM lParam)
             }
             break;
 
-        case IDC_CLEARHOTKEY_STARTSTREAM:
+        case IDC_CLEARHOTKEY_SWITCHDISPLAYMODE:
             if (HIWORD(wParam) == BN_CLICKED)
             {
-                if (SendMessage(GetDlgItem(hwnd, IDC_STARTSTREAMHOTKEY), HKM_GETHOTKEY, 0, 0))
+                if (SendMessage(GetDlgItem(hwnd, IDC_SWITCHDISPLAYMODEHOTKEY), HKM_GETHOTKEY, 0, 0))
                 {
-                    SendMessage(GetDlgItem(hwnd, IDC_STARTSTREAMHOTKEY), HKM_SETHOTKEY, 0, 0);
+                    SendMessage(GetDlgItem(hwnd, IDC_SWITCHDISPLAYMODEHOTKEY), HKM_SETHOTKEY, 0, 0);
                     SetChangedSettings(true);
                 }
             }
@@ -275,9 +219,9 @@ INT_PTR SettingsHotkeys::ProcMessage(UINT message, WPARAM wParam, LPARAM lParam)
         case IDC_CLEARHOTKEY:
             if (HIWORD(wParam) == BN_CLICKED)
             {
-                if (SendMessage(GetDlgItem(hwnd, IDC_STOPSTREAMHOTKEY), HKM_GETHOTKEY, 0, 0))
+                if (SendMessage(GetDlgItem(hwnd, IDC_ZOOMINSCENEHOTKEY), HKM_GETHOTKEY, 0, 0))
                 {
-                    SendMessage(GetDlgItem(hwnd, IDC_STOPSTREAMHOTKEY), HKM_SETHOTKEY, 0, 0);
+                    SendMessage(GetDlgItem(hwnd, IDC_ZOOMINSCENEHOTKEY), HKM_SETHOTKEY, 0, 0);
                     SetChangedSettings(true);
                 }
             }
@@ -341,9 +285,9 @@ INT_PTR SettingsHotkeys::ProcMessage(UINT message, WPARAM wParam, LPARAM lParam)
         case IDC_CLEARHOTKEY_RECORDFROMREPLAYBUFFER:
             if (HIWORD(wParam) == BN_CLICKED)
             {
-                if (SendMessage(GetDlgItem(hwnd, IDC_RECORDFROMREPLAYBUFFERHOTKEY), HKM_GETHOTKEY, 0, 0))
+                if (SendMessage(GetDlgItem(hwnd, IDC_ZOOMOUTSCENEHOTKEY), HKM_GETHOTKEY, 0, 0))
                 {
-                    SendMessage(GetDlgItem(hwnd, IDC_RECORDFROMREPLAYBUFFERHOTKEY), HKM_SETHOTKEY, 0, 0);
+                    SendMessage(GetDlgItem(hwnd, IDC_ZOOMOUTSCENEHOTKEY), HKM_SETHOTKEY, 0, 0);
                     SetChangedSettings(true);
                 }
             }
