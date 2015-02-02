@@ -755,7 +755,7 @@ private:
     String  strLanguage;
     bool    bTestStream;
     bool    bUseMultithreadedOptimizations;
-	bool    bRunning, bRecording, bRecordingReplayBuffer, bRecordingOnly, bStartingUp, bStreaming, bStreamFlushed = true, bKeepRecording, bDisplayResolutionChanged = false;
+	bool    bRunning, bRecording, bRecordingReplayBuffer, bRecordingOnly, bStartingUp, bStreaming, bStreamFlushed = true, bKeepRecording, bDisplayResolutionChanged = false, bFullscreenGameSourceChanged = false, bInitilised = false;
     bool    canRecord;
     volatile bool bShutdownVideoThread, bShutdownEncodeThread;
     int     renderFrameWidth, renderFrameHeight; // The size of the preview only
@@ -889,6 +889,11 @@ private:
 	// display region
 	RECT rcDisplay, rcPrimary;
 
+	HWND hwndCurrent;
+
+	XElement* dataOfFullScreenGame;
+
+	bool bCapturingFullScreenMode = false;
     //---------------------------------------------------
     // main audio capture loop stuff
 
@@ -1300,12 +1305,15 @@ public:
     void AddPendingStreamThread(HANDLE thread);
     void ClosePendingStreams();
 	void ResetMainWndState();
+
+	void ResetStream();
+
 	void CalculateViewportRegion(RECT& rcLeft, RECT& rcRight, RECT& rcDstLeft, RECT& rcDstRight);
 	void SetCapturePrimaryScreen();
 
 	void ZoomIn();
 	void ZoomOut();
-	void SelectCorrectGameSource();
+	void RefreshWindowList();
 };
 
 LONG CALLBACK OBSExceptionHandler (PEXCEPTION_POINTERS exceptionInfo);

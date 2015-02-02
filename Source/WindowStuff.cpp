@@ -4515,6 +4515,11 @@ LRESULT CALLBACK OBS::OBSProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 					String strOutString;
 					strOutString << TEXT("FPS: ") << IntString(App->captureFPS);
 					OutputDebugString(strOutString);
+
+					if (App->bInitilised)
+					{
+						App->RefreshWindowList();
+					}
 			}
 			break;
 		case WM_DESTROY:
