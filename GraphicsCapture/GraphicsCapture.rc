@@ -126,12 +126,12 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "Open Broadcaster Software Game Capture Plugin"
+            VALUE "FileDescription", "MagicViewer Game Capture Plugin"
             VALUE "FileVersion", "0.6.3.8"
             VALUE "InternalName", "GraphicsCapture.dll"
             VALUE "LegalCopyright", "Copyright (C) 2013"
             VALUE "OriginalFilename", "GraphicsCapture.dll"
-            VALUE "ProductName", "Open Broadcaster Software Game Capture Plugin"
+            VALUE "ProductName", "MagicViewer Game Capture Plugin"
             VALUE "ProductVersion", "0.6.3.8"
         END
     END

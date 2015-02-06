@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Japanese (Japan) resources
+// 日语(日本) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
 LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
@@ -913,12 +913,12 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "Open Broadcaster Software"
+            VALUE "FileDescription", "MagicViewer"
             VALUE "FileVersion", "0.6.3.8"
             VALUE "InternalName", "OBS"
             VALUE "LegalCopyright", "Copyright (C) 2013-2014"
             VALUE "OriginalFilename", "OBS.exe"
-            VALUE "ProductName", "Open Broadcaster Software"
+            VALUE "ProductName", "MagicViewer"
             VALUE "ProductVersion", "0.6.3.8"
         END
     END
@@ -1002,12 +1002,12 @@ END
 //
 
 IDC_COLORPICKER         CURSOR                  "cursor1.cur"
-#endif    // Japanese (Japan) resources
+#endif    // 日语(日本) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (United States) resources
+// 英语(美国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -1060,8 +1060,7 @@ BEGIN
     CONTROL         "Custom1",IDC_SAVEREPLAYBUFFERHOTKEY,"OBSHotkeyControlEx",WS_TABSTOP,181,223,157,14
     PUSHBUTTON      "ClearHotkey",IDC_CLEARHOTKEY_SAVEREPLAYBUFFER,339,223,73,14
     RTEXT           "Settings.Publish.RecordFromReplayBufferHotkey",IDC_RECORDFROMREPLAYBUFFERHOTKEY_STATIC,10,242,169,8
-    CONTROL         "Custom1",IDC_ZOOMOUTSCENEHOTKEY,
-                    "OBSHotkeyControlEx",WS_TABSTOP,181,239,157,14
+    CONTROL         "Custom1",IDC_ZOOMOUTSCENEHOTKEY,"OBSHotkeyControlEx",WS_TABSTOP,181,239,157,14
     PUSHBUTTON      "ClearHotkey",IDC_CLEARHOTKEY_RECORDFROMREPLAYBUFFER,339,239,73,14
 END
 
@@ -1084,12 +1083,12 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // English (United States) resources
+#endif    // 英语(美国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (Ireland) resources
+// 英语(爱尔兰) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENI)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_EIRE
@@ -1190,7 +1189,7 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // English (Ireland) resources
+#endif    // 英语(爱尔兰) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

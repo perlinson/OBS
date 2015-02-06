@@ -540,7 +540,7 @@ void OBS::DrawPreview(const Vect2 &renderFrameSize, const Vect2 &renderFrameOffs
                 renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);
 	else
 	{
-		if (App->bIn2DMode)
+		if (App->currentMode == Mode_2d)
 		{
 			RECT rcViewPortLeft = { 0 }, rcViewPortRight = { 0 }, rcTextureLeft = { 0 }, rcTextureRight;
 
@@ -572,8 +572,15 @@ void OBS::DrawPreview(const Vect2 &renderFrameSize, const Vect2 &renderFrameOffs
 				renderFrameOffset.x, renderFrameOffset.y,
 				renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);
 		}
+		else if (App->currentMode == Mode_3d)
+		{
+			DrawSprite(mainRenderTextures[curRenderTarget], 0xFFFFFFFF,
+				renderFrameOffset.x, renderFrameOffset.y,
+				renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);
+		}
 		else
 		{
+			SetViewport(0.0f, renderFrameCtrlSize.y / 4, renderFrameCtrlSize.x, renderFrameCtrlSize.y / 2);
 			DrawSprite(mainRenderTextures[curRenderTarget], 0xFFFFFFFF,
 				renderFrameOffset.x, renderFrameOffset.y,
 				renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);

@@ -227,7 +227,7 @@ bool ParseUpdateArchiveManifest(TCHAR *path, BOOL *updatesAvailable, String &des
     if (url.IsEmpty())
         return false;
 
-    description << "Open Broadcaster Software" << version << L"\n";
+    description << "MagicViewer" << version << L"\n";
     
     if (!FetchUpdaterModule(updaterURL, updaterHash))
         return false;

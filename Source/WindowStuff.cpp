@@ -3234,7 +3234,7 @@ void OBS::ResetLogUploadMenu()
             DWORD nRead = f.Read(contents, 1024*8 - 1);
             contents[nRead] = 0;
 
-            bool validLog = (strstr(contents, "Open Broadcaster Software") != nullptr);
+            bool validLog = (strstr(contents, "MagicViewer") != nullptr);
 
             if (!validLog)
                 continue;
@@ -4527,7 +4527,7 @@ LRESULT CALLBACK OBS::OBSProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			break;
 		case WM_COPYDATA:
 			{
-				App->bIn2DMode = LOWORD(wParam);
+				App->currentMode = LOWORD(wParam);
 			}
 			break;
         default:

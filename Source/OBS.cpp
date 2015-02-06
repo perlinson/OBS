@@ -282,9 +282,10 @@ OBS::OBS()
     bPanelVisibleProcessed = false; // Force immediate process
 
     bFullscreenMode = false;
-	bIn2DMode		= FALSE;
+	currentMode		= FALSE;
 	hwndCurrent = NULL;
 	dataOfFullScreenGame = nullptr;
+	dataForGameResolution = nullptr;
 	hwndMain = CreateWindowEx(WS_EX_CONTROLPARENT | WS_EX_WINDOWEDGE | (LocaleIsRTL() ? WS_EX_LAYOUTRTL : 0), OBS_WINDOW_CLASS, GetApplicationName(),
         WS_OVERLAPPED | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN,
         x, y, cx, cy, NULL, NULL, hinstMain, NULL);
@@ -1123,8 +1124,13 @@ void OBS::SetFullscreenMode(bool fullscreen)
         // Update menu checkboxes
         CheckMenuItem(hmenuMain, ID_FULLSCREENMODE, MF_UNCHECKED);
 
+		int x = rcDisplay.left;
+		int y = rcDisplay.top;
+		int cx = rcDisplay.right - rcDisplay.left;
+		int cy = rcDisplay.bottom - rcDisplay.top;
+
         // Disable always-on-top if needed
-        SetWindowPos(hwndMain, (App->bAlwaysOnTop)?HWND_TOPMOST:HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE| SWP_HIDEWINDOW);
+        SetWindowPos(hwndMain, (App->bAlwaysOnTop)?HWND_TOPMOST:HWND_NOTOPMOST, x, y, cx, cy, SWP_HIDEWINDOW);
     }
 
     // Workaround: If the window is maximized, resize isn't called, so do it manually
@@ -2219,7 +2225,7 @@ void OBS::SetCapturePrimaryScreen()
 		{
 			XElement *source = sources->GetElementByID(i);
 			if (!source)
-				continue;;
+				continue;
 
 			CTSTR lpClass = source->GetString(TEXT("class"));
 
@@ -2230,6 +2236,7 @@ void OBS::SetCapturePrimaryScreen()
 
 			if (scmp(lpClass, TEXT("GraphicsCapture")) == 0)
 			{
+				dataForGameResolution = source;
 				dataOfFullScreenGame = data;
 			}
 
@@ -2284,11 +2291,7 @@ void OBS::ResetMainWndState()
  	AppConfig->SetInt(TEXT("Video"), TEXT("BaseWidth"), rcPrimary.right - rcPrimary.left);
  	AppConfig->SetInt(TEXT("Video"), TEXT("BaseHeight"), rcPrimary.bottom - rcPrimary.top);
 	
-// 	if (dataOfFullScreenGame)
-// 	{
-// 		dataOfFullScreenGame->SetInt(TEXT("cx"), rcDisplay.right - rcDisplay.left);
-// 		dataOfFullScreenGame->SetInt(TEXT("cy"), rcDisplay.bottom- rcDisplay.top);
-// 	}
+ 	
 
 	//this code fix the problem that occur when the end user change the size of the screen
 	
@@ -2360,14 +2363,17 @@ void OBS::RefreshWindowList()
 		return;
 	}
 
+	DWORD exStyles = (DWORD)GetWindowLongPtr(hwndCurrent, GWL_EXSTYLE);
+	DWORD styles = (DWORD)GetWindowLongPtr(hwndCurrent, GWL_STYLE);
+
 	RECT rcApp;
 	if ((hwndCurrent != GetDesktopWindow()) && (hwndCurrent != GetShellWindow()))//如果前台窗口不是桌面窗口，也不是控制台窗口
 	{
-		GetClientRect(hwndCurrent, &rcApp);//获取前台窗口的坐标
+		GetWindowRect(hwndCurrent, &rcApp);//获取前台窗口的坐标
 		
 		OutputDebugString(String() << "the rcApp's Rect : [" << rcApp.left << " " << rcApp.top << " " << rcApp.right - rcApp.left << " " << rcApp.bottom - rcApp.top << " ]");
 		OutputDebugString(String() << "the rcPrimary's Rect : [" << rcPrimary.left << " " << rcPrimary.top << " " << rcPrimary.right - rcPrimary.left << " " << rcPrimary.bottom - rcPrimary.top << " ]");
-		if ((rcApp.right - rcApp.left >= rcPrimary.right - rcPrimary.left) && //如果前台窗口的坐标完全覆盖住桌面窗口，就表示前台窗口是全屏的
+		if ((styles & WS_CAPTION) ==0 &&  (rcApp.right - rcApp.left >= rcPrimary.right - rcPrimary.left) && //如果前台窗口的坐标完全覆盖住桌面窗口，就表示前台窗口是全屏的
 			(rcApp.bottom- rcApp.top	 >= rcPrimary.bottom - rcPrimary.top))
 		{
 			if (bCapturingFullScreenMode && bDetectedSampeApp)
@@ -2377,7 +2383,19 @@ void OBS::RefreshWindowList()
 		}
 		else
 		{
+			if (!bCapturingFullScreenMode)
+			{
+				return;
+			}
+			if (dataOfFullScreenGame)
+			{
+				dataForGameResolution->SetInt(TEXT("cx"), rcDisplay.right - rcDisplay.left);
+				dataForGameResolution->SetInt(TEXT("cy"), rcDisplay.bottom - rcDisplay.top);
+			}
+
 			bCapturingFullScreenMode = false;
+			ChangeSource(bCapturingFullScreenMode);
+			
 			return;
 		}
 	}//如果前台窗口是桌面窗口，或者是控制台窗口，就直接返回不是全屏
@@ -2390,8 +2408,7 @@ void OBS::RefreshWindowList()
 	GetWindowText(hwndCurrent, strWindowName, strWindowName.Length() + 1);
 
 
-	DWORD exStyles = (DWORD)GetWindowLongPtr(hwndCurrent, GWL_EXSTYLE);
-	DWORD styles = (DWORD)GetWindowLongPtr(hwndCurrent, GWL_STYLE);
+
 
 	if (strWindowName.IsValid() && sstri(strWindowName, L"battlefield") != nullptr)
 		exStyles &= ~WS_EX_TOOLWINDOW;
@@ -2489,227 +2506,36 @@ void OBS::RefreshWindowList()
 
 		if (bFoundModule)
 		{
-			if (!dataOfFullScreenGame)
+			if (!dataOfFullScreenGame || !dataForGameResolution)
 			{
 				return;
 			}
 			
-			XElement* data = dataOfFullScreenGame;
+			dataOfFullScreenGame->SetString(TEXT("window"), strText);
+			dataOfFullScreenGame->SetString(TEXT("windowClass"), strClassName);
+			dataOfFullScreenGame->SetString(TEXT("executable"), strExecutable);
+			dataOfFullScreenGame->SetInt(TEXT("stretchImage"), TRUE);
+			dataOfFullScreenGame->SetInt(TEXT("alphaBlend"), FALSE);
+			dataOfFullScreenGame->SetInt(TEXT("ignoreAspect"), FALSE);
+			dataOfFullScreenGame->SetInt(TEXT("captureMouse"), TRUE);
+			dataOfFullScreenGame->SetInt(TEXT("safeHook"), TRUE);
 
-			data->SetString(TEXT("window"), strText);
-			data->SetString(TEXT("windowClass"), strClassName);
-			data->SetString(TEXT("executable"), strExecutable);
+			
+			dataForGameResolution->SetInt(TEXT("cx"), rcApp.right - rcApp.left);
+			dataForGameResolution->SetInt(TEXT("cy"), rcApp.bottom - rcApp.top);
+// 			dataOfFullScreenGame->SetInt(TEXT("captureX"), rcApp.left);
+// 			dataOfFullScreenGame->SetInt(TEXT("captureY"), rcApp.right);
+// 			dataOfFullScreenGame->SetInt(TEXT("captureCX"), rcApp.right - rcApp.left);
+// 			dataOfFullScreenGame->SetInt(TEXT("captureCY"), rcApp.bottom - rcApp.top);
 
-			data->SetInt(TEXT("stretchImage"), TRUE);
-			data->SetInt(TEXT("alphaBlend"), FALSE);
-			data->SetInt(TEXT("ignoreAspect"), FALSE);
-			data->SetInt(TEXT("captureMouse"), TRUE);
-			data->SetInt(TEXT("safeHook"), TRUE);
+			bCapturingFullScreenMode = true;
 
-			//data->SetInt(TEXT("captureX"), rcApp.left);
-			//data->SetInt(TEXT("captureY"), rcApp.right);
-			//data->SetInt(TEXT("captureCX"), rcApp.right - rcApp.left);
-			//data->SetInt(TEXT("captureCY"), rcApp.bottom - rcApp.top	);
+			ChangeSource(bCapturingFullScreenMode);
 
 			ResetStream();
-			bCapturingFullScreenMode = true;
+			
 		}
-
-		
-
-		//WindowInfo &info = *configData.windowData.CreateNew();
-		//info.strClass = strClassName;
-		//info.strExecutable = baseExeName;
-		//info.bRequiresAdmin = false; //todo: add later
-		//info.bFoundHookableModule = bFoundModule;
-		//info.strExecutable.MakeLower();
 	}
-
-
-
-
-
-
-	//configData.ClearData();
-
-	//HWND hwndCurrent = GetWindow(GetDesktopWindow(), GW_CHILD);
-	//do
-	//{
-	//	if (IsWindowVisible(hwndCurrent))
-	//	{
-	//		if (hwndCurrent == GetDesktopWindow() || hwndCurrent == GetShellWindow())
-	//		{
-	//			continue;
-	//		}
-
-	//		RECT clientRect;
-	//		GetClientRect(hwndCurrent, &clientRect);
-
-	//		if (rcPrimary.left <= rcPrimary.left
-	//			&& rcPrimary.top <= rcPrimary.top
-	//			&& rcPrimary.right >= rcPrimary.right
-	//			&& rcPrimary.bottom >= rcPrimary.bottom)
-	//		{
-	//			bFullScreen = true;
-	//		}
-	//		
-
-
-
-
-	//		String strWindowName;
-	//		strWindowName.SetLength(GetWindowTextLength(hwndCurrent));
-	//		GetWindowText(hwndCurrent, strWindowName, strWindowName.Length() + 1);
-
-	//		HWND hwndParent = GetParent(hwndCurrent);
-
-	//		DWORD exStyles = (DWORD)GetWindowLongPtr(hwndCurrent, GWL_EXSTYLE);
-	//		DWORD styles = (DWORD)GetWindowLongPtr(hwndCurrent, GWL_STYLE);
-
-	//		if (strWindowName.IsValid() && sstri(strWindowName, L"battlefield") != nullptr)
-	//			exStyles &= ~WS_EX_TOOLWINDOW;
-
-	//		if ((exStyles & WS_EX_TOOLWINDOW) == 0 && (styles & WS_CHILD) == 0 /*&& hwndParent == NULL*/)
-	//		{
-	//			BOOL bFoundModule = true;
-	//			DWORD processID;
-	//			GetWindowThreadProcessId(hwndCurrent, &processID);
-	//			if (processID == GetCurrentProcessId())
-	//				continue;
-
-	//			TCHAR fileName[MAX_PATH + 1];
-	//			scpy(fileName, TEXT("unknown"));
-
-	//			char pOPStr[12];
-	//			mcpy(pOPStr, "NpflUvhel{x", 12);
-	//			for (int i = 0; i < 11; i++) pOPStr[i] ^= i ^ 1;
-
-	//			OPPROC pOpenProcess = (OPPROC)GetProcAddress(GetModuleHandle(TEXT("KERNEL32")), pOPStr);
-
-	//			HANDLE hProcess = (*pOpenProcess)(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, processID);
-	//			if (hProcess)
-	//			{
-	//				DWORD dwSize = MAX_PATH;
-	//				QueryFullProcessImageName(hProcess, 0, fileName, &dwSize);
-
-	//				StringList moduleList;
-	//				if (OSGetLoadedModuleList(hProcess, moduleList) && moduleList.Num())
-	//				{
-	//					//note: this doesn't actually work cross-bit, but we may as well make as much use of
-	//					//the data we can get.
-	//					bFoundModule = false;
-	//					for (UINT i = 0; i < moduleList.Num(); i++)
-	//					{
-	//						CTSTR moduleName = moduleList[i];
-
-	//						if (!scmp(moduleName, TEXT("d3d9.dll")) ||
-	//							!scmp(moduleName, TEXT("d3d10.dll")) ||
-	//							!scmp(moduleName, TEXT("d3d10_1.dll")) ||
-	//							!scmp(moduleName, TEXT("d3d11.dll")) ||
-	//							!scmp(moduleName, TEXT("dxgi.dll")) ||
-	//							!scmp(moduleName, TEXT("d3d8.dll")) ||
-	//							!scmp(moduleName, TEXT("opengl32.dll")))
-	//						{
-	//							bFoundModule = true;
-	//							break;
-	//						}
-	//					}
-
-	//					if (!bFoundModule)
-	//					{
-	//						CloseHandle(hProcess);
-	//						continue;
-	//					}
-	//				}
-
-	//				CloseHandle(hProcess);
-	//			}
-	//			else
-	//			{
-	//				hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processID);
-	//				if (hProcess)
-	//				{
-	//					configData.adminWindows << strWindowName;
-	//					CloseHandle(hProcess);
-	//				}
-
-	//				continue;
-	//			}
-
-	//			//-------
-
-	//			String strFileName = fileName;
-	//			strFileName.FindReplace(TEXT("\\"), TEXT("/"));
-
-	//			String strText;
-	//			strText << TEXT("[") << GetPathFileName(strFileName);
-	//			strText << TEXT("]: ") << strWindowName;
-
-	//			String strClassName;
-	//			strClassName.SetLength(256);
-	//			GetClassName(hwndCurrent, strClassName.Array(), 255);
-	//			strClassName.SetLength(slen(strClassName));
-
-	//			TCHAR *baseExeName;
-	//			baseExeName = wcsrchr(fileName, '\\');
-	//			if (!baseExeName)
-	//				baseExeName = fileName;
-	//			else
-	//				baseExeName++;
-
-	//			WindowInfo &info = *configData.windowData.CreateNew();
-	//			info.strClass = strClassName;
-	//			info.strExecutable = baseExeName;
-	//			info.bRequiresAdmin = false; //todo: add later
-	//			info.bFoundHookableModule = bFoundModule;
-
-	//			info.strExecutable.MakeLower();
-	//		}
-	//	}
-	//} while (hwndCurrent = GetNextWindow(hwndCurrent, GW_HWNDNEXT));
-
-	//if (OSGetVersion() < 8)
-	//{
-	//	BOOL isCompositionEnabled = FALSE;
-
-	//	DwmIsCompositionEnabled(&isCompositionEnabled);
-
-	//	if (isCompositionEnabled)
-	//	{
-	//		String strText;
-	//		strText << TEXT("[DWM]: ") << Str("Sources.SoftwareCaptureSource.MonitorCapture");
-
-	//		int id = (int)SendMessage(hwndCombobox, CB_ADDSTRING, 0, (LPARAM)strText.Array());
-	//		SendMessage(hwndCombobox, CB_SETITEMDATA, id, (LPARAM)NULL);
-
-	//		WindowInfo &info = *configData.windowData.CreateNew();
-	//		info.strClass = TEXT("Dwm");
-	//		info.strExecutable = TEXT("dwm.exe");
-	//		info.bRequiresAdmin = false; //todo: add later
-	//		info.bFoundHookableModule = true;
-	//	}
-	//}
-
-	//// preserve the last used settings in case the target isn't open any more, prevents
-	//// Properties -> OK selecting a new random target.
-
-	//String oldWindow = configData.data->GetString(TEXT("window"));
-	//String oldClass = configData.data->GetString(TEXT("windowClass"));
-	//String oldExe = configData.data->GetString(TEXT("executable"));
-
-	//UINT windowID = (UINT)SendMessage(hwndCombobox, CB_FINDSTRINGEXACT, -1, (LPARAM)oldWindow.Array());
-
-	//if (windowID == CB_ERR && oldWindow.IsValid() && oldClass.IsValid())
-	//{
-	//	int id = (int)SendMessage(hwndCombobox, CB_ADDSTRING, 0, (LPARAM)oldWindow.Array());
-	//	SendMessage(hwndCombobox, CB_SETITEMDATA, id, (LPARAM)NULL);
-
-	//	WindowInfo &info = *configData.windowData.CreateNew();
-	//	info.strClass = oldClass;
-	//	info.strExecutable = oldExe;
-	//	info.bRequiresAdmin = false; //todo: add later
-	//	info.bFoundHookableModule = true;
-	//}
 }
 
 void OBS::ResetStream()
@@ -2731,5 +2557,35 @@ void OBS::ResetStream()
 	{
 		SendMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_TESTSTREAM, 0), NULL);
 		SetFullscreenMode(true);
+	}
+}
+
+void OBS::ChangeSource(bool bCaptureFullScreenGame)
+{
+	XElement *curSceneElement = App->sceneElement;
+	XElement *sources = curSceneElement->GetElement(TEXT("sources"));
+
+	if (!sources)
+		return;
+
+	HWND hwndSources = GetDlgItem(hwndMain, ID_SOURCES);
+
+	UINT numSources = ListView_GetItemCount(hwndSources);
+	for (UINT i = 0; i < numSources-1; i++)
+	{
+		bool checked = ListView_GetCheckState(hwndSources, i) > 0;
+		XElement *source = sources->GetElementByID(i);
+
+		if (checked != bCaptureFullScreenGame)
+		{
+			ListView_SetCheckState(hwndSources, i, bCaptureFullScreenGame);
+			if (scene && i < scene->NumSceneItems())
+			{
+				SceneItem *sceneItem = scene->GetSceneItem(i);
+				sceneItem->bRender = bCaptureFullScreenGame;
+				sceneItem->SetRender(bCaptureFullScreenGame);
+			}
+			ReportSourceChanged(source->GetName(), source);
+		}
 	}
 }

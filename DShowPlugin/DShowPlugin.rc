@@ -74,12 +74,12 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "Open Broadcaster Software DirectShow Plugin"
+            VALUE "FileDescription", "MagicViewer DirectShow Plugin"
             VALUE "FileVersion", "0.6.3.8"
             VALUE "InternalName", "DShowPlugin.dll"
             VALUE "LegalCopyright", "Copyright (C) 2013"
             VALUE "OriginalFilename", "DShowPlugin.dll"
-            VALUE "ProductName", "Open Broadcaster Software DirectShow Plugin"
+            VALUE "ProductName", "MagicViewer DirectShow Plugin"
             VALUE "ProductVersion", "0.6.3.8"
         END
     END

@@ -891,7 +891,7 @@ private:
 
 	HWND hwndCurrent;
 
-	XElement* dataOfFullScreenGame;
+	XElement* dataOfFullScreenGame, *dataForGameResolution;
 
 	bool bCapturingFullScreenMode = false;
     //---------------------------------------------------
@@ -925,7 +925,14 @@ private:
     UINT SwitchDisplayModeHotkeyID;
 	UINT ZoomInSceneHotkeyID;
 	UINT ZoomOutSceneHotkeyID;
-	BOOL bIn2DMode;
+	UINT currentMode;
+
+	enum {
+		Mode_2d,
+		Mode_3d,
+		Mode_3d_half,
+	};
+
 	float scalefactor = 1.0f;
     static DWORD STDCALL MainAudioThread(LPVOID lpUnused);
     bool QueryAudioBuffers(bool bQueriedDesktopDebugParam);
@@ -1314,6 +1321,7 @@ public:
 	void ZoomIn();
 	void ZoomOut();
 	void RefreshWindowList();
+	void ChangeSource(bool bCaptureFullScreenGame);
 };
 
 LONG CALLBACK OBSExceptionHandler (PEXCEPTION_POINTERS exceptionInfo);
