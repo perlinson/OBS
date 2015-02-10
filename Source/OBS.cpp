@@ -283,7 +283,6 @@ OBS::OBS()
 
     bFullscreenMode = false;
 	currentMode		= FALSE;
-	currentVecticalFactor = 1.0f;
 	hwndCurrent = NULL;
 	dataOfFullScreenGame = nullptr;
 	dataForGameResolution = nullptr;
@@ -1562,11 +1561,11 @@ void OBS::ReloadIniSettings()
     if (hotkey)
         SwitchDisplayModeHotkeyID = API->CreateHotkey(hotkey, OBS::SwitchDisplayMode, NULL);
 
-	hotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("ZoomInSceneHotkey"));
+	hotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("ZoomInScene"));
 	if (hotkey)
 		ZoomInSceneHotkeyID = API->CreateHotkey(hotkey, OBS::ZoomInScene, NULL);
 
-	hotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("ZoomOutSceneHotKey"));
+	hotkey = AppConfig->GetInt(TEXT("Publish"), TEXT("ZoomOutScene"));
 	if (hotkey)
 		ZoomOutSceneHotkeyID = API->CreateHotkey(hotkey, OBS::ZoomOutScene, NULL);
 

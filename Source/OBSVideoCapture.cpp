@@ -502,32 +502,14 @@ void OBS::EncodeLoop()
     bShutdownVideoThread = true;
 }
 
-
-template <typename T, typename U, typename V>
-static inline T clamp(T t, U u, V v)
-{
-	if (t < u)
-		return u;
-	return t > v ? v : t;
-}
-
 void OBS::ZoomIn()
 {
-	if (App->currentMode == Mode_3d)
-	{
-		currentVecticalFactor += 0.01f;
-		currentVecticalFactor = clamp(currentVecticalFactor, 0.0f, 1.0f);
-	}
-	
+	scalefactor += 0.01;
 }
 
 void OBS::ZoomOut()
 {
-	if (App->currentMode == Mode_3d)
-	{
-		currentVecticalFactor -= 0.01f;
-		currentVecticalFactor = clamp(currentVecticalFactor, 0.0f, 1.0f);
-	}
+	scalefactor -= 0.01f;
 }
 
 void OBS::DrawPreview(const Vect2 &renderFrameSize, const Vect2 &renderFrameOffset, const Vect2 &renderFrameCtrlSize, int curRenderTarget, PreviewDrawType type)
@@ -590,10 +572,15 @@ void OBS::DrawPreview(const Vect2 &renderFrameSize, const Vect2 &renderFrameOffs
 				renderFrameOffset.x, renderFrameOffset.y,
 				renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);
 		}
+		else if (App->currentMode == Mode_3d)
+		{
+			DrawSprite(mainRenderTextures[curRenderTarget], 0xFFFFFFFF,
+				renderFrameOffset.x, renderFrameOffset.y,
+				renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);
+		}
 		else
 		{
-			
-			SetViewport(0.0f, renderFrameCtrlSize.y * (1.0f - currentVecticalFactor) / 2, renderFrameCtrlSize.x, renderFrameCtrlSize.y * currentVecticalFactor);
+			SetViewport(0.0f, renderFrameCtrlSize.y / 4, renderFrameCtrlSize.x, renderFrameCtrlSize.y / 2);
 			DrawSprite(mainRenderTextures[curRenderTarget], 0xFFFFFFFF,
 				renderFrameOffset.x, renderFrameOffset.y,
 				renderFrameOffset.x + renderFrameSize.x, renderFrameOffset.y + renderFrameSize.y);
