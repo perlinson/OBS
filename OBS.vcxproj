@@ -22,6 +22,7 @@
     <ProjectGuid>{221C92F4-3416-43F1-8E4E-78657AFD0111}</ProjectGuid>
     <RootNamespace>OBS</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <ProjectName>MagicViewer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

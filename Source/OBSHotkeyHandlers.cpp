@@ -31,15 +31,10 @@ void STDCALL OBS::SwitchDisplayMode(DWORD hotkey, UPARAM param, bool bDown)
 	{
 		App->currentMode = Mode_3d;
 	}
-	else if (App->currentMode == Mode_3d)
-	{
-		App->currentMode = Mode_3d_half;
-	}
 	else
 	{
 		App->currentMode = Mode_2d;
 	}
-	
 }
 
 void STDCALL OBS::ZoomInScene(DWORD hotkey, UPARAM param, bool bDown)

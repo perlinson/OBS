@@ -926,11 +926,12 @@ private:
 	UINT ZoomInSceneHotkeyID;
 	UINT ZoomOutSceneHotkeyID;
 	UINT currentMode;
+	float currentVecticalFactor;
 
+	inline float GetCurrentVecticalFactor() const { return currentVecticalFactor; };
 	enum {
 		Mode_2d,
 		Mode_3d,
-		Mode_3d_half,
 	};
 
 	float scalefactor = 1.0f;
