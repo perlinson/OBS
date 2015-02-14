@@ -915,9 +915,9 @@ BEGIN
         BEGIN
             VALUE "FileDescription", "MagicViewer"
             VALUE "FileVersion", "0.6.3.8"
-            VALUE "InternalName", "OBS"
+            VALUE "InternalName", "MagicViewer"
             VALUE "LegalCopyright", "Copyright (C) 2013-2014"
-            VALUE "OriginalFilename", "OBS.exe"
+            VALUE "OriginalFilename", "MagicViewer.exe"
             VALUE "ProductName", "MagicViewer"
             VALUE "ProductVersion", "0.6.3.8"
         END

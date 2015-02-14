@@ -826,7 +826,7 @@ retryHookTestV2:
 
     //hRequestAudioEvent = CreateSemaphore(NULL, 0, 0x7FFFFFFFL, NULL);
     hSoundDataMutex = OSCreateMutex();
-    hSoundThread = OSCreateThread((XTHREAD)OBS::MainAudioThread, NULL);
+    //hSoundThread = OSCreateThread((XTHREAD)OBS::MainAudioThread, NULL);
 
     //-------------------------------------------------------------
 
@@ -887,7 +887,7 @@ retryHookTestV2:
     bShutdownVideoThread = false;
     bShutdownEncodeThread = false;
     //ResetEvent(hVideoThread);
-    hEncodeThread = OSCreateThread((XTHREAD)OBS::EncodeThread, NULL);
+    //hEncodeThread = OSCreateThread((XTHREAD)OBS::EncodeThread, NULL);
     hVideoThread = OSCreateThread((XTHREAD)OBS::MainCaptureThread, NULL);
 
     EnableWindow(GetDlgItem(hwndMain, ID_SCENEEDITOR), TRUE);

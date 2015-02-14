@@ -692,42 +692,42 @@ void OBS::MainCaptureLoop()
 
     int curOutBuffer = 0;
 
-    bool bUsingQSV = videoEncoder->isQSV();//GlobalConfig->GetInt(TEXT("Video Encoding"), TEXT("UseQSV")) != 0;
-    bUsing444 = false;
+//     bool bUsingQSV = videoEncoder->isQSV();//GlobalConfig->GetInt(TEXT("Video Encoding"), TEXT("UseQSV")) != 0;
+//     bUsing444 = false;
 
-    EncoderPicture lastPic;
-    EncoderPicture outPics[NUM_OUT_BUFFERS];
-
-    for(int i=0; i<NUM_OUT_BUFFERS; i++)
-    {
-        if(bUsingQSV)
-        {
-            outPics[i].mfxOut = new mfxFrameSurface1;
-            memset(outPics[i].mfxOut, 0, sizeof(mfxFrameSurface1));
-            mfxFrameData& data = outPics[i].mfxOut->Data;
-            videoEncoder->RequestBuffers(&data);
-        }
-        else
-        {
-            outPics[i].picOut = new x264_picture_t;
-            x264_picture_init(outPics[i].picOut);
-        }
-    }
-
-    if(bUsing444)
-    {
-        for(int i=0; i<NUM_OUT_BUFFERS; i++)
-        {
-            outPics[i].picOut->img.i_csp   = X264_CSP_BGRA; //although the x264 input says BGR, x264 actually will expect packed UYV
-            outPics[i].picOut->img.i_plane = 1;
-        }
-    }
-    else
-    {
-        if(!bUsingQSV)
-            for(int i=0; i<NUM_OUT_BUFFERS; i++)
-                x264_picture_alloc(outPics[i].picOut, X264_CSP_NV12, outputCX, outputCY);
-    }
+//     EncoderPicture lastPic;
+//     EncoderPicture outPics[NUM_OUT_BUFFERS];
+// 
+//     for(int i=0; i<NUM_OUT_BUFFERS; i++)
+//     {
+//         if(bUsingQSV)
+//         {
+//             outPics[i].mfxOut = new mfxFrameSurface1;
+//             memset(outPics[i].mfxOut, 0, sizeof(mfxFrameSurface1));
+//             mfxFrameData& data = outPics[i].mfxOut->Data;
+//             videoEncoder->RequestBuffers(&data);
+//         }
+//         else
+//         {
+//             outPics[i].picOut = new x264_picture_t;
+//             x264_picture_init(outPics[i].picOut);
+//         }
+//     }
+// 
+//     if(bUsing444)
+//     {
+//         for(int i=0; i<NUM_OUT_BUFFERS; i++)
+//         {
+//             outPics[i].picOut->img.i_csp   = X264_CSP_BGRA; //although the x264 input says BGR, x264 actually will expect packed UYV
+//             outPics[i].picOut->img.i_plane = 1;
+//         }
+//     }
+//     else
+//     {
+//         if(!bUsingQSV)
+//             for(int i=0; i<NUM_OUT_BUFFERS; i++)
+//                 x264_picture_alloc(outPics[i].picOut, X264_CSP_NV12, outputCX, outputCY);
+//     }
 
     int bCongestionControl = AppConfig->GetInt (TEXT("Video Encoding"), TEXT("CongestionControl"), 0);
     bool bDynamicBitrateSupported = App->GetVideoEncoder()->DynamicBitrateSupported();
@@ -773,52 +773,52 @@ void OBS::MainCaptureLoop()
     double lastStrain = 0.0f;
     DWORD numSecondsWaited = 0;
 
-    //----------------------------------------
-    // 444->420 thread data
+//     //----------------------------------------
+//     // 444->420 thread data
+// 
+//     int numThreads = MAX(OSGetTotalCores()-2, 1);
+//     HANDLE *h420Threads = (HANDLE*)Allocate(sizeof(HANDLE)*numThreads);
+//     Convert444Data *convertInfo = (Convert444Data*)Allocate(sizeof(Convert444Data)*numThreads);
+// 
+//     zero(h420Threads, sizeof(HANDLE)*numThreads);
+//     zero(convertInfo, sizeof(Convert444Data)*numThreads);
+// 
+//     for(int i=0; i<numThreads; i++)
+//     {
+//         convertInfo[i].width  = outputCX;
+//         convertInfo[i].height = outputCY;
+//         convertInfo[i].hSignalConvert  = CreateEvent(NULL, FALSE, FALSE, NULL);
+//         convertInfo[i].hSignalComplete = CreateEvent(NULL, FALSE, FALSE, NULL);
+//         convertInfo[i].bNV12 = bUsingQSV;
+//         convertInfo[i].numThreads = numThreads;
+// 
+//         if(i == 0)
+//             convertInfo[i].startY = 0;
+//         else
+//             convertInfo[i].startY = convertInfo[i-1].endY;
+// 
+//         if(i == (numThreads-1))
+//             convertInfo[i].endY = outputCY;
+//         else
+//             convertInfo[i].endY = ((outputCY/numThreads)*(i+1)) & 0xFFFFFFFE;
+//     }
 
-    int numThreads = MAX(OSGetTotalCores()-2, 1);
-    HANDLE *h420Threads = (HANDLE*)Allocate(sizeof(HANDLE)*numThreads);
-    Convert444Data *convertInfo = (Convert444Data*)Allocate(sizeof(Convert444Data)*numThreads);
-
-    zero(h420Threads, sizeof(HANDLE)*numThreads);
-    zero(convertInfo, sizeof(Convert444Data)*numThreads);
-
-    for(int i=0; i<numThreads; i++)
-    {
-        convertInfo[i].width  = outputCX;
-        convertInfo[i].height = outputCY;
-        convertInfo[i].hSignalConvert  = CreateEvent(NULL, FALSE, FALSE, NULL);
-        convertInfo[i].hSignalComplete = CreateEvent(NULL, FALSE, FALSE, NULL);
-        convertInfo[i].bNV12 = bUsingQSV;
-        convertInfo[i].numThreads = numThreads;
-
-        if(i == 0)
-            convertInfo[i].startY = 0;
-        else
-            convertInfo[i].startY = convertInfo[i-1].endY;
-
-        if(i == (numThreads-1))
-            convertInfo[i].endY = outputCY;
-        else
-            convertInfo[i].endY = ((outputCY/numThreads)*(i+1)) & 0xFFFFFFFE;
-    }
-
-    bool bEncode;
-    bool bFirstFrame = true;
-    bool bFirstImage = true;
-    bool bFirstEncode = true;
-    bool bUseThreaded420 = bUseMultithreadedOptimizations && (OSGetTotalCores() > 1) && !bUsing444;
-
-    List<HANDLE> completeEvents;
-
-    if(bUseThreaded420)
-    {
-        for(int i=0; i<numThreads; i++)
-        {
-            h420Threads[i] = OSCreateThread((XTHREAD)Convert444Thread, convertInfo+i);
-            completeEvents << convertInfo[i].hSignalComplete;
-        }
-    }
+//     bool bEncode;
+     bool bFirstFrame = true;
+     bool bFirstImage = true;
+     bool bFirstEncode = true;
+//     bool bUseThreaded420 = bUseMultithreadedOptimizations && (OSGetTotalCores() > 1) && !bUsing444;
+// 
+//     List<HANDLE> completeEvents;
+// 
+//     if(bUseThreaded420)
+//     {
+//         for(int i=0; i<numThreads; i++)
+//         {
+//             h420Threads[i] = OSCreateThread((XTHREAD)Convert444Thread, convertInfo+i);
+//             completeEvents << convertInfo[i].hSignalComplete;
+//         }
+//     }
 
     //----------------------------------------
 
@@ -827,7 +827,8 @@ void OBS::MainCaptureLoop()
     QWORD firstFrameTimeMS = streamTimeStart/1000000;
     QWORD frameLengthNS    = 1000000000/fps;
 
-    while(WaitForSingleObject(hVideoEvent, INFINITE) == WAIT_OBJECT_0)
+    //while(WaitForSingleObject(hVideoEvent, INFINITE) == WAIT_OBJECT_0)
+	while (true)
     {
         if (bShutdownVideoThread)
             break;
@@ -858,27 +859,27 @@ void OBS::MainCaptureLoop()
 
         //------------------------------------
 
-        if(bRequestKeyframe && keyframeWait > 0)
-        {
-            keyframeWait -= int(frameDelta);
-
-            if(keyframeWait <= 0)
-            {
-                GetVideoEncoder()->RequestKeyframe();
-                bRequestKeyframe = false;
-            }
-        }
-
-        if(!pushToTalkDown && pushToTalkTimeLeft > 0)
-        {
-            pushToTalkTimeLeft -= int(frameDelta);
-            OSDebugOut(TEXT("time left: %d\r\n"), pushToTalkTimeLeft);
-            if(pushToTalkTimeLeft <= 0)
-            {
-                pushToTalkTimeLeft = 0;
-                bPushToTalkOn = false;
-            }
-        }
+//         if(bRequestKeyframe && keyframeWait > 0)
+//         {
+//             keyframeWait -= int(frameDelta);
+// 
+//             if(keyframeWait <= 0)
+//             {
+//                 GetVideoEncoder()->RequestKeyframe();
+//                 bRequestKeyframe = false;
+//             }
+//         }
+// 
+//         if(!pushToTalkDown && pushToTalkTimeLeft > 0)
+//         {
+//             pushToTalkTimeLeft -= int(frameDelta);
+//             OSDebugOut(TEXT("time left: %d\r\n"), pushToTalkTimeLeft);
+//             if(pushToTalkTimeLeft <= 0)
+//             {
+//                 pushToTalkTimeLeft = 0;
+//                 bPushToTalkOn = false;
+//             }
+//         }
 
         //------------------------------------
 
@@ -1147,12 +1148,12 @@ void OBS::MainCaptureLoop()
 
         profileIn("GPU download and conversion");
 
-        bEncode = true;
+        //bEncode = true;
 
         if(copyWait)
         {
             copyWait--;
-            bEncode = false;
+            //bEncode = false;
         }
         else
         {
@@ -1165,7 +1166,7 @@ void OBS::MainCaptureLoop()
                     bWarnedAboutNoAudio = true;
                     //AddStreamInfo (TEXT ("WARNING: OBS is not receiving audio frames. Please check your audio devices."), StreamInfoPriority_Critical); 
                 }
-                bEncode = false;
+               // bEncode = false;
             }
             else if(bFirstFrame)
             {
@@ -1173,203 +1174,203 @@ void OBS::MainCaptureLoop()
                 bFirstFrame = false;
             }
 
-            if(!bEncode)
-            {
-                if(curYUVTexture == (NUM_RENDER_BUFFERS-1))
-                    curYUVTexture = 0;
-                else
-                    curYUVTexture++;
-            }
+//             if(!bEncode)
+//             {
+//                 if(curYUVTexture == (NUM_RENDER_BUFFERS-1))
+//                     curYUVTexture = 0;
+//                 else
+//                     curYUVTexture++;
+//             }
         }
 
         lastStreamTime = curStreamTime;
 
-        if(bEncode)
-        {
-            UINT prevCopyTexture = (curCopyTexture == 0) ? NUM_RENDER_BUFFERS-1 : curCopyTexture-1;
-
-            ID3D11Texture2D *copyTexture = copyTextures[curCopyTexture];
-            profileIn("CopyResource");
-
-            if(!bFirstEncode && bUseThreaded420)
-            {
-                WaitForMultipleObjects(completeEvents.Num(), completeEvents.Array(), TRUE, INFINITE);
-                GetD3DCtx()->Unmap(copyTexture, 0);
-            }
-
-            D3D10Texture *d3dYUV = static_cast<D3D10Texture*>(yuvRenderTextures[curYUVTexture]);
-            GetD3DCtx()->CopyResource(copyTexture, d3dYUV->texture);
-            profileOut;
-
-            ID3D11Texture2D *prevTexture = copyTextures[prevCopyTexture];
-
-            if(bFirstImage) //ignore the first frame
-                bFirstImage = false;
-            else
-            {
-                HRESULT result;
-                D3D11_MAPPED_SUBRESOURCE map;
-                if(SUCCEEDED(result = GetD3DCtx()->Map(prevTexture, 0, D3D11_MAP_READ, 0, &map)))
-                {
-                    int prevOutBuffer = (curOutBuffer == 0) ? NUM_OUT_BUFFERS-1 : curOutBuffer-1;
-                    int nextOutBuffer = (curOutBuffer == NUM_OUT_BUFFERS-1) ? 0 : curOutBuffer+1;
-
-                    EncoderPicture &prevPicOut = outPics[prevOutBuffer];
-                    EncoderPicture &picOut = outPics[curOutBuffer];
-                    EncoderPicture &nextPicOut = outPics[nextOutBuffer];
-
-                    if(!bUsing444)
-                    {
-                        profileIn("conversion to 4:2:0");
-
-                        if(bUseThreaded420)
-                        {
-                            for(int i=0; i<numThreads; i++)
-                            {
-                                convertInfo[i].input     = (LPBYTE)map.pData;
-                                convertInfo[i].inPitch   = map.RowPitch;
-                                if(bUsingQSV)
-                                {
-                                    mfxFrameData& data = nextPicOut.mfxOut->Data;
-                                    videoEncoder->RequestBuffers(&data);
-                                    convertInfo[i].outPitch  = data.Pitch;
-                                    convertInfo[i].output[0] = data.Y;
-                                    convertInfo[i].output[1] = data.UV;
-                                }
-                                else
-                                {
-                                    convertInfo[i].output[0] = nextPicOut.picOut->img.plane[0];
-                                    convertInfo[i].output[1] = nextPicOut.picOut->img.plane[1];
-                                    convertInfo[i].output[2] = nextPicOut.picOut->img.plane[2];
-								}
-                                SetEvent(convertInfo[i].hSignalConvert);
-                            }
-
-                            if(bFirstEncode)
-                                bFirstEncode = bEncode = false;
-                        }
-                        else
-                        {
-                            if(bUsingQSV)
-                            {
-                                mfxFrameData& data = picOut.mfxOut->Data;
-                                videoEncoder->RequestBuffers(&data);
-                                LPBYTE output[] = {data.Y, data.UV};
-                                Convert444toNV12((LPBYTE)map.pData, outputCX, map.RowPitch, data.Pitch, outputCY, 0, outputCY, output);
-                            }
-                            else
-                                Convert444toNV12((LPBYTE)map.pData, outputCX, map.RowPitch, outputCX, outputCY, 0, outputCY, picOut.picOut->img.plane);
-                            GetD3DCtx()->Unmap(prevTexture, 0);
-                        }
-
-                        profileOut;
-                    }
-
-                    if(bEncode)
-                    {
-                        //encodeThreadProfiler.reset(::new ProfilerNode(TEXT("EncodeThread"), true));
-                        //encodeThreadProfiler->MonitorThread(hEncodeThread);
-                        InterlockedExchangePointer((volatile PVOID*)&curFramePic, &picOut);
-                    }
-
-                    curOutBuffer = nextOutBuffer;
-                }
-                else
-                {
-                    //We have to crash, or we end up deadlocking the thread when the convert threads are never signalled
-                    if (result == DXGI_ERROR_DEVICE_REMOVED)
-                    {
-                        String message;
-
-                        HRESULT reason = GetD3D()->GetDeviceRemovedReason();
-
-                        switch (reason)
-                        {
-                        case DXGI_ERROR_DEVICE_RESET:
-                        case DXGI_ERROR_DEVICE_HUNG:
-                            message = TEXT("Your video card or driver froze and was reset. Please check for possible hardware / driver issues.");
-                            break;
-                        case DXGI_ERROR_DEVICE_REMOVED:
-                            message = TEXT("Your video card disappeared from the system. Please check for possible hardware / driver issues.");
-                            break;
-                        case DXGI_ERROR_DRIVER_INTERNAL_ERROR:
-                            message = TEXT("Your video driver reported an internal error. Please check for possible hardware / driver issues.");
-                            break;
-                        case DXGI_ERROR_INVALID_CALL:
-                            message = TEXT("Your video driver reported an invalid call. Please check for possible driver issues.");
-                            break;
-                        default:
-                            message = TEXT("DXGI_ERROR_DEVICE_REMOVED");
-                            break;
-                        }
-
-                        message << TEXT(" This error can also occur if you have enabled opencl in x264 custom settings.");
-
-                        CrashError (TEXT("Texture->Map failed: 0x%08x 0x%08x\r\n\r\n%s"), result, reason, message.Array());
-                    }
-                    else
-                        CrashError (TEXT("Texture->Map failed: 0x%08x"), result);
-                }
-            }
-
-            if(curCopyTexture == (NUM_RENDER_BUFFERS-1))
-                curCopyTexture = 0;
-            else
-                curCopyTexture++;
-
-            if(curYUVTexture == (NUM_RENDER_BUFFERS-1))
-                curYUVTexture = 0;
-            else
-                curYUVTexture++;
-
-            if (bCongestionControl && bDynamicBitrateSupported && !bTestStream && totalStreamTime > 15000)
-            {
-                if (curStrain > 25)
-                {
-                    if (renderStartTimeMS - lastAdjustmentTime > 1500)
-                    {
-                        if (currentBitRate > 100)
-                        {
-                            currentBitRate = (int)(currentBitRate * (1.0 - (curStrain / 400)));
-                            App->GetVideoEncoder()->SetBitRate(currentBitRate, -1);
-                            if (!adjustmentStreamId)
-                                adjustmentStreamId = App->AddStreamInfo (FormattedString(TEXT("Congestion detected, dropping bitrate to %d kbps"), currentBitRate).Array(), StreamInfoPriority_Low);
-                            else
-                                App->SetStreamInfo(adjustmentStreamId, FormattedString(TEXT("Congestion detected, dropping bitrate to %d kbps"), currentBitRate).Array());
-
-                            bUpdateBPS = true;
-                        }
-
-                        lastAdjustmentTime = renderStartTimeMS;
-                    }
-                }
-                else if (currentBitRate < defaultBitRate && curStrain < 5 && lastStrain < 5)
-                {
-                    if (renderStartTimeMS - lastAdjustmentTime > 5000)
-                    {
-                        if (currentBitRate < defaultBitRate)
-                        {
-                            currentBitRate += (int)(defaultBitRate * 0.05);
-                            if (currentBitRate > defaultBitRate)
-                                currentBitRate = defaultBitRate;
-                        }
-
-                        App->GetVideoEncoder()->SetBitRate(currentBitRate, -1);
-                        /*if (!adjustmentStreamId)
-                            App->AddStreamInfo (FormattedString(TEXT("Congestion clearing, raising bitrate to %d kbps"), currentBitRate).Array(), StreamInfoPriority_Low);
-                        else
-                            App->SetStreamInfo(adjustmentStreamId, FormattedString(TEXT("Congestion clearing, raising bitrate to %d kbps"), currentBitRate).Array());*/
-
-                        App->RemoveStreamInfo(adjustmentStreamId);
-                        adjustmentStreamId = 0;
-
-                        bUpdateBPS = true;
-
-                        lastAdjustmentTime = renderStartTimeMS;
-                    }
-                }
-            }
-        }
+//         if(bEncode)
+//         {
+//             UINT prevCopyTexture = (curCopyTexture == 0) ? NUM_RENDER_BUFFERS-1 : curCopyTexture-1;
+// 
+//             ID3D11Texture2D *copyTexture = copyTextures[curCopyTexture];
+//             profileIn("CopyResource");
+// 
+//             if(!bFirstEncode && bUseThreaded420)
+//             {
+//                 WaitForMultipleObjects(completeEvents.Num(), completeEvents.Array(), TRUE, INFINITE);
+//                 GetD3DCtx()->Unmap(copyTexture, 0);
+//             }
+// 
+//             D3D10Texture *d3dYUV = static_cast<D3D10Texture*>(yuvRenderTextures[curYUVTexture]);
+//             GetD3DCtx()->CopyResource(copyTexture, d3dYUV->texture);
+//             profileOut;
+// 
+//             ID3D11Texture2D *prevTexture = copyTextures[prevCopyTexture];
+// 
+//             if(bFirstImage) //ignore the first frame
+//                 bFirstImage = false;
+//             else
+//             {
+//                 HRESULT result;
+//                 D3D11_MAPPED_SUBRESOURCE map;
+//                 if(SUCCEEDED(result = GetD3DCtx()->Map(prevTexture, 0, D3D11_MAP_READ, 0, &map)))
+//                 {
+//                     int prevOutBuffer = (curOutBuffer == 0) ? NUM_OUT_BUFFERS-1 : curOutBuffer-1;
+//                     int nextOutBuffer = (curOutBuffer == NUM_OUT_BUFFERS-1) ? 0 : curOutBuffer+1;
+// 
+//                     EncoderPicture &prevPicOut = outPics[prevOutBuffer];
+//                     EncoderPicture &picOut = outPics[curOutBuffer];
+//                     EncoderPicture &nextPicOut = outPics[nextOutBuffer];
+// 
+//                     if(!bUsing444)
+//                     {
+//                         profileIn("conversion to 4:2:0");
+// 
+//                         if(bUseThreaded420)
+//                         {
+//                             for(int i=0; i<numThreads; i++)
+//                             {
+//                                 convertInfo[i].input     = (LPBYTE)map.pData;
+//                                 convertInfo[i].inPitch   = map.RowPitch;
+//                                 if(bUsingQSV)
+//                                 {
+//                                     mfxFrameData& data = nextPicOut.mfxOut->Data;
+//                                     videoEncoder->RequestBuffers(&data);
+//                                     convertInfo[i].outPitch  = data.Pitch;
+//                                     convertInfo[i].output[0] = data.Y;
+//                                     convertInfo[i].output[1] = data.UV;
+//                                 }
+//                                 else
+//                                 {
+//                                     convertInfo[i].output[0] = nextPicOut.picOut->img.plane[0];
+//                                     convertInfo[i].output[1] = nextPicOut.picOut->img.plane[1];
+//                                     convertInfo[i].output[2] = nextPicOut.picOut->img.plane[2];
+// 								}
+//                                 SetEvent(convertInfo[i].hSignalConvert);
+//                             }
+// 
+//                             if(bFirstEncode)
+//                                 bFirstEncode = bEncode = false;
+//                         }
+//                         else
+//                         {
+//                             if(bUsingQSV)
+//                             {
+//                                 mfxFrameData& data = picOut.mfxOut->Data;
+//                                 videoEncoder->RequestBuffers(&data);
+//                                 LPBYTE output[] = {data.Y, data.UV};
+//                                 Convert444toNV12((LPBYTE)map.pData, outputCX, map.RowPitch, data.Pitch, outputCY, 0, outputCY, output);
+//                             }
+//                             else
+//                                 Convert444toNV12((LPBYTE)map.pData, outputCX, map.RowPitch, outputCX, outputCY, 0, outputCY, picOut.picOut->img.plane);
+//                             GetD3DCtx()->Unmap(prevTexture, 0);
+//                         }
+// 
+//                         profileOut;
+//                     }
+// 
+//                     if(bEncode)
+//                     {
+//                         //encodeThreadProfiler.reset(::new ProfilerNode(TEXT("EncodeThread"), true));
+//                         //encodeThreadProfiler->MonitorThread(hEncodeThread);
+//                         InterlockedExchangePointer((volatile PVOID*)&curFramePic, &picOut);
+//                     }
+// 
+//                     curOutBuffer = nextOutBuffer;
+//                 }
+//                 else
+//                 {
+//                     //We have to crash, or we end up deadlocking the thread when the convert threads are never signalled
+//                     if (result == DXGI_ERROR_DEVICE_REMOVED)
+//                     {
+//                         String message;
+// 
+//                         HRESULT reason = GetD3D()->GetDeviceRemovedReason();
+// 
+//                         switch (reason)
+//                         {
+//                         case DXGI_ERROR_DEVICE_RESET:
+//                         case DXGI_ERROR_DEVICE_HUNG:
+//                             message = TEXT("Your video card or driver froze and was reset. Please check for possible hardware / driver issues.");
+//                             break;
+//                         case DXGI_ERROR_DEVICE_REMOVED:
+//                             message = TEXT("Your video card disappeared from the system. Please check for possible hardware / driver issues.");
+//                             break;
+//                         case DXGI_ERROR_DRIVER_INTERNAL_ERROR:
+//                             message = TEXT("Your video driver reported an internal error. Please check for possible hardware / driver issues.");
+//                             break;
+//                         case DXGI_ERROR_INVALID_CALL:
+//                             message = TEXT("Your video driver reported an invalid call. Please check for possible driver issues.");
+//                             break;
+//                         default:
+//                             message = TEXT("DXGI_ERROR_DEVICE_REMOVED");
+//                             break;
+//                         }
+// 
+//                         message << TEXT(" This error can also occur if you have enabled opencl in x264 custom settings.");
+// 
+//                         CrashError (TEXT("Texture->Map failed: 0x%08x 0x%08x\r\n\r\n%s"), result, reason, message.Array());
+//                     }
+//                     else
+//                         CrashError (TEXT("Texture->Map failed: 0x%08x"), result);
+//                 }
+//             }
+// 
+//             if(curCopyTexture == (NUM_RENDER_BUFFERS-1))
+//                 curCopyTexture = 0;
+//             else
+//                 curCopyTexture++;
+// 
+//             if(curYUVTexture == (NUM_RENDER_BUFFERS-1))
+//                 curYUVTexture = 0;
+//             else
+//                 curYUVTexture++;
+// 
+//             if (bCongestionControl && bDynamicBitrateSupported && !bTestStream && totalStreamTime > 15000)
+//             {
+//                 if (curStrain > 25)
+//                 {
+//                     if (renderStartTimeMS - lastAdjustmentTime > 1500)
+//                     {
+//                         if (currentBitRate > 100)
+//                         {
+//                             currentBitRate = (int)(currentBitRate * (1.0 - (curStrain / 400)));
+//                             App->GetVideoEncoder()->SetBitRate(currentBitRate, -1);
+//                             if (!adjustmentStreamId)
+//                                 adjustmentStreamId = App->AddStreamInfo (FormattedString(TEXT("Congestion detected, dropping bitrate to %d kbps"), currentBitRate).Array(), StreamInfoPriority_Low);
+//                             else
+//                                 App->SetStreamInfo(adjustmentStreamId, FormattedString(TEXT("Congestion detected, dropping bitrate to %d kbps"), currentBitRate).Array());
+// 
+//                             bUpdateBPS = true;
+//                         }
+// 
+//                         lastAdjustmentTime = renderStartTimeMS;
+//                     }
+//                 }
+//                 else if (currentBitRate < defaultBitRate && curStrain < 5 && lastStrain < 5)
+//                 {
+//                     if (renderStartTimeMS - lastAdjustmentTime > 5000)
+//                     {
+//                         if (currentBitRate < defaultBitRate)
+//                         {
+//                             currentBitRate += (int)(defaultBitRate * 0.05);
+//                             if (currentBitRate > defaultBitRate)
+//                                 currentBitRate = defaultBitRate;
+//                         }
+// 
+//                         App->GetVideoEncoder()->SetBitRate(currentBitRate, -1);
+//                         /*if (!adjustmentStreamId)
+//                             App->AddStreamInfo (FormattedString(TEXT("Congestion clearing, raising bitrate to %d kbps"), currentBitRate).Array(), StreamInfoPriority_Low);
+//                         else
+//                             App->SetStreamInfo(adjustmentStreamId, FormattedString(TEXT("Congestion clearing, raising bitrate to %d kbps"), currentBitRate).Array());*/
+// 
+//                         App->RemoveStreamInfo(adjustmentStreamId);
+//                         adjustmentStreamId = 0;
+// 
+//                         bUpdateBPS = true;
+// 
+//                         lastAdjustmentTime = renderStartTimeMS;
+//                     }
+//                 }
+//             }
+//         }
 
         lastRenderTarget = curRenderTarget;
 
@@ -1415,54 +1416,54 @@ void OBS::MainCaptureLoop()
 
     //encodeThreadProfiler.reset();
 
-    if(!bUsing444)
-    {
-        if(bUseThreaded420)
-        {
-            for(int i=0; i<numThreads; i++)
-            {
-                if(h420Threads[i])
-                {
-                    convertInfo[i].bKillThread = true;
-                    SetEvent(convertInfo[i].hSignalConvert);
-
-                    OSTerminateThread(h420Threads[i], 10000);
-                    h420Threads[i] = NULL;
-                }
-
-                if(convertInfo[i].hSignalConvert)
-                {
-                    CloseHandle(convertInfo[i].hSignalConvert);
-                    convertInfo[i].hSignalConvert = NULL;
-                }
-
-                if(convertInfo[i].hSignalComplete)
-                {
-                    CloseHandle(convertInfo[i].hSignalComplete);
-                    convertInfo[i].hSignalComplete = NULL;
-                }
-            }
-
-            if(!bFirstEncode)
-            {
-                ID3D11Texture2D *copyTexture = copyTextures[curCopyTexture];
-                GetD3DCtx()->Unmap(copyTexture, 0);
-            }
-        }
-
-        if(bUsingQSV)
-            for(int i = 0; i < NUM_OUT_BUFFERS; i++)
-                delete outPics[i].mfxOut;
-        else
-            for(int i=0; i<NUM_OUT_BUFFERS; i++)
-            {
-                x264_picture_clean(outPics[i].picOut);
-                delete outPics[i].picOut;
-            }
-    }
-
-    Free(h420Threads);
-    Free(convertInfo);
+//     if(!bUsing444)
+//     {
+//         if(bUseThreaded420)
+//         {
+//             for(int i=0; i<numThreads; i++)
+//             {
+//                 if(h420Threads[i])
+//                 {
+//                     convertInfo[i].bKillThread = true;
+//                     SetEvent(convertInfo[i].hSignalConvert);
+// 
+//                     OSTerminateThread(h420Threads[i], 10000);
+//                     h420Threads[i] = NULL;
+//                 }
+// 
+//                 if(convertInfo[i].hSignalConvert)
+//                 {
+//                     CloseHandle(convertInfo[i].hSignalConvert);
+//                     convertInfo[i].hSignalConvert = NULL;
+//                 }
+// 
+//                 if(convertInfo[i].hSignalComplete)
+//                 {
+//                     CloseHandle(convertInfo[i].hSignalComplete);
+//                     convertInfo[i].hSignalComplete = NULL;
+//                 }
+//             }
+// 
+//             if(!bFirstEncode)
+//             {
+//                 ID3D11Texture2D *copyTexture = copyTextures[curCopyTexture];
+//                 GetD3DCtx()->Unmap(copyTexture, 0);
+//             }
+//         }
+// 
+//         if(bUsingQSV)
+//             for(int i = 0; i < NUM_OUT_BUFFERS; i++)
+//                 delete outPics[i].mfxOut;
+//         else
+//             for(int i=0; i<NUM_OUT_BUFFERS; i++)
+//             {
+//                 x264_picture_clean(outPics[i].picOut);
+//                 delete outPics[i].picOut;
+//             }
+//     }
+// 
+//     Free(h420Threads);
+//     Free(convertInfo);
 
     Log(TEXT("Total frames rendered: %d, number of late frames: %d (%0.2f%%) (it's okay for some frames to be late)"), numTotalFrames, numLongFrames, (numTotalFrames > 0) ? (double(numLongFrames)/double(numTotalFrames))*100.0 : 0.0f);
 }
