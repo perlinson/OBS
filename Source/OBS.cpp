@@ -287,7 +287,7 @@ OBS::OBS()
 	hwndCurrent = NULL;
 	dataOfFullScreenGame = nullptr;
 	dataForGameResolution = nullptr;
-	hwndMain = CreateWindowEx(WS_EX_CONTROLPARENT | WS_EX_WINDOWEDGE | (LocaleIsRTL() ? WS_EX_LAYOUTRTL : 0), OBS_WINDOW_CLASS, GetApplicationName(),
+	hwndMain = CreateWindowEx(WS_EX_TOOLWINDOW|WS_EX_CONTROLPARENT | WS_EX_WINDOWEDGE | (LocaleIsRTL() ? WS_EX_LAYOUTRTL : 0), OBS_WINDOW_CLASS, GetApplicationName(),
         WS_OVERLAPPED | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN,
         x, y, cx, cy, NULL, NULL, hinstMain, NULL);
     if(!hwndMain)
@@ -1059,6 +1059,7 @@ void OBS::ResizeRenderFrame(bool bRedrawRenderFrame)
 
 void OBS::SetFullscreenMode(bool fullscreen)
 {
+	//return;
     if(App->bFullscreenMode == fullscreen)
         return; // Nothing to do
 
@@ -1099,6 +1100,12 @@ void OBS::SetFullscreenMode(bool fullscreen)
 		int y = rcDisplay.top;
 		int cx = rcDisplay.right - rcDisplay.left;
 		int cy = rcDisplay.bottom - rcDisplay.top;
+
+#ifndef _DEBUG
+		String strOutput;
+		strOutput << "fullscreenModel" << IntString(x) << "   " << IntString(y) << "   " << IntString(cx) << "   " << IntString(cy);
+		OutputDebugString(strOutput);
+#endif
 		SetWindowPos(hwndMain, HWND_TOPMOST, x, y, cx, cy, SWP_FRAMECHANGED | SWP_SHOWWINDOW);
 
         // Update menu checkboxes
@@ -1131,7 +1138,7 @@ void OBS::SetFullscreenMode(bool fullscreen)
 		int cy = rcDisplay.bottom - rcDisplay.top;
 
         // Disable always-on-top if needed
-        SetWindowPos(hwndMain, (App->bAlwaysOnTop)?HWND_TOPMOST:HWND_NOTOPMOST, x, y, cx, cy, SWP_HIDEWINDOW);
+        SetWindowPos(hwndMain, (App->bAlwaysOnTop)?HWND_TOPMOST:HWND_NOTOPMOST, x, y, cx, cy, SWP_SHOWWINDOW);
     }
 
     // Workaround: If the window is maximized, resize isn't called, so do it manually
@@ -2367,15 +2374,18 @@ void OBS::RefreshWindowList()
 	DWORD exStyles = (DWORD)GetWindowLongPtr(hwndCurrent, GWL_EXSTYLE);
 	DWORD styles = (DWORD)GetWindowLongPtr(hwndCurrent, GWL_STYLE);
 
-	RECT rcApp;
+	RECT rcApp, rcAppClient;
 	if ((hwndCurrent != GetDesktopWindow()) && (hwndCurrent != GetShellWindow()))//如果前台窗口不是桌面窗口，也不是控制台窗口
 	{
 		GetWindowRect(hwndCurrent, &rcApp);//获取前台窗口的坐标
-		
+		GetClientRect(hwndCurrent, &rcAppClient);
+#ifndef _DEBUG
 		OutputDebugString(String() << "the rcApp's Rect : [" << rcApp.left << " " << rcApp.top << " " << rcApp.right - rcApp.left << " " << rcApp.bottom - rcApp.top << " ]");
-		OutputDebugString(String() << "the rcPrimary's Rect : [" << rcPrimary.left << " " << rcPrimary.top << " " << rcPrimary.right - rcPrimary.left << " " << rcPrimary.bottom - rcPrimary.top << " ]");
-		if ((styles & WS_CAPTION) ==0 &&  (rcApp.right - rcApp.left >= rcPrimary.right - rcPrimary.left) && //如果前台窗口的坐标完全覆盖住桌面窗口，就表示前台窗口是全屏的
-			(rcApp.bottom- rcApp.top	 >= rcPrimary.bottom - rcPrimary.top))
+		OutputDebugString(String() << "the rcAppClient's Rect : [" << rcAppClient.left << " " << rcAppClient.top << " " << rcAppClient.right - rcAppClient.left << " " << rcAppClient.bottom - rcAppClient.top << " ]");
+#endif
+	
+ 		if ((styles & WS_CAPTION) ==0 &&  (rcApp.right - rcApp.left >= rcPrimary.right - rcPrimary.left) && //如果前台窗口的坐标完全覆盖住桌面窗口，就表示前台窗口是全屏的
+ 			(rcApp.bottom- rcApp.top	 >= rcPrimary.bottom - rcPrimary.top))
 		{
 			if (bCapturingFullScreenMode && bDetectedSampeApp)
 			{
@@ -2388,7 +2398,7 @@ void OBS::RefreshWindowList()
 			{
 				return;
 			}
-			if (dataOfFullScreenGame)
+			if (dataForGameResolution)
 			{
 				dataForGameResolution->SetInt(TEXT("cx"), rcDisplay.right - rcDisplay.left);
 				dataForGameResolution->SetInt(TEXT("cy"), rcDisplay.bottom - rcDisplay.top);
@@ -2522,19 +2532,18 @@ void OBS::RefreshWindowList()
 			dataOfFullScreenGame->SetInt(TEXT("safeHook"), TRUE);
 
 			
-			dataForGameResolution->SetInt(TEXT("cx"), rcApp.right - rcApp.left);
-			dataForGameResolution->SetInt(TEXT("cy"), rcApp.bottom - rcApp.top);
-// 			dataOfFullScreenGame->SetInt(TEXT("captureX"), rcApp.left);
-// 			dataOfFullScreenGame->SetInt(TEXT("captureY"), rcApp.right);
-// 			dataOfFullScreenGame->SetInt(TEXT("captureCX"), rcApp.right - rcApp.left);
-// 			dataOfFullScreenGame->SetInt(TEXT("captureCY"), rcApp.bottom - rcApp.top);
+ 			dataForGameResolution->SetInt(TEXT("cx"), rcApp.right - rcApp.left);
+ 			dataForGameResolution->SetInt(TEXT("cy"), rcApp.bottom - rcApp.top);
+ 			dataOfFullScreenGame->SetInt(TEXT("captureX"), rcApp.left);
+ 			dataOfFullScreenGame->SetInt(TEXT("captureY"), rcApp.right);
+ 			dataOfFullScreenGame->SetInt(TEXT("captureCX"), rcApp.right - rcApp.left);
+ 			dataOfFullScreenGame->SetInt(TEXT("captureCY"), rcApp.bottom - rcApp.top);
 
 			bCapturingFullScreenMode = true;
 
 			ChangeSource(bCapturingFullScreenMode);
-
 			ResetStream();
-			
+			FitItemsToScreen();
 		}
 	}
 }
@@ -2551,7 +2560,7 @@ void OBS::ResetStream()
 		}
 
 		bDisplayResolutionChanged = false;
-		Sleep(200);
+		//Sleep(200);
 	}
 
 	if (monitors.Num() != 1)
@@ -2587,6 +2596,37 @@ void OBS::ChangeSource(bool bCaptureFullScreenGame)
 				sceneItem->SetRender(bCaptureFullScreenGame);
 			}
 			ReportSourceChanged(source->GetName(), source);
+		}
+	}
+}
+
+void OBS::DisableGameCaptureSource()
+{
+	//disable the game capture source to ensure correct detected when fullscreen game appeared
+
+	XElement *curSceneElement = App->sceneElement;
+	XElement *sources = curSceneElement->GetElement(TEXT("sources"));
+
+	if (!sources)
+		return;
+
+	HWND hwndSources = GetDlgItem(hwndMain, ID_SOURCES);
+
+	UINT numSources = ListView_GetItemCount(hwndSources);
+	for (UINT i = 0; i < numSources - 1; i++)
+	{
+		bool checked = ListView_GetCheckState(hwndSources, i) > 0;
+		XElement *source = sources->GetElementByID(i);
+
+		if (checked)
+		{
+			ListView_SetCheckState(hwndSources, i, false);
+			if (scene && i < scene->NumSceneItems())
+			{
+				SceneItem *sceneItem = scene->GetSceneItem(i);
+				sceneItem->bRender = false;
+				sceneItem->SetRender(false);
+			}
 		}
 	}
 }

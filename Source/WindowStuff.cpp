@@ -3908,8 +3908,9 @@ LRESULT CALLBACK OBS::OBSProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
                 case IDCANCEL:
                     // This actually means the user pressed the ESC key
-                    if(App->bFullscreenMode)
-                        App->SetFullscreenMode(false);
+					// we cant't do the following action
+//                     if(App->bFullscreenMode)
+//                         App->SetFullscreenMode(false);
                     break;
 
                 default:
@@ -5566,6 +5567,7 @@ LRESULT CALLBACK OBS::RenderFrameProc(HWND hwnd, UINT message, WPARAM wParam, LP
         }
         if(message == WM_RBUTTONUP)
         {
+			return 0;
             HMENU hPopup = CreatePopupMenu();
 
             //---------------------------------------------------

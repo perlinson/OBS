@@ -696,6 +696,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             }
         }
 
+		//Disable Game Capture Source
+
+		//App->DisableGameCaptureSource();
+
         delete App;
 
         //--------------------------------------------

@@ -1323,6 +1323,7 @@ public:
 	void ZoomOut();
 	void RefreshWindowList();
 	void ChangeSource(bool bCaptureFullScreenGame);
+	void DisableGameCaptureSource();
 };
 
 LONG CALLBACK OBSExceptionHandler (PEXCEPTION_POINTERS exceptionInfo);

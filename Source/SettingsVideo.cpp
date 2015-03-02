@@ -390,7 +390,7 @@ INT_PTR SettingsVideo::ProcMessage(UINT message, WPARAM wParam, LPARAM lParam)
                 if(OSGetVersion() == 8)
                     EnableWindow(hwndTemp, FALSE);
 
-                BOOL bDisableAero = AppConfig->GetInt(TEXT("Video"), TEXT("DisableAero"), 0);
+                BOOL bDisableAero = AppConfig->GetInt(TEXT("Video"), TEXT("DisableAero"), 1);
                 SendMessage(hwndTemp, BM_SETCHECK, bDisableAero ? BST_CHECKED : 0, 0);
 
                 ti.lpszText = (LPWSTR)Str("Settings.Video.DisableAeroTooltip");
