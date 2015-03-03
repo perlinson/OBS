@@ -2309,7 +2309,7 @@ void OBS::ResetMainWndState()
 	//that occurs an error
 	//comment and uncomment both SetFullscreenMode(true) and SetFullscreenMode(false) at the same time
 
-	ResetStream();
+	ResetStream(true);
 	return;
 }
 
@@ -2527,32 +2527,31 @@ void OBS::RefreshWindowList()
 			dataOfFullScreenGame->SetString(TEXT("executable"), strExecutable);
 			dataOfFullScreenGame->SetInt(TEXT("stretchImage"), TRUE);
 			dataOfFullScreenGame->SetInt(TEXT("alphaBlend"), FALSE);
-			dataOfFullScreenGame->SetInt(TEXT("ignoreAspect"), FALSE);
+			dataOfFullScreenGame->SetInt(TEXT("ignoreAspect"), TRUE);
 			dataOfFullScreenGame->SetInt(TEXT("captureMouse"), TRUE);
 			dataOfFullScreenGame->SetInt(TEXT("safeHook"), TRUE);
 
-			
  			dataForGameResolution->SetInt(TEXT("cx"), rcApp.right - rcApp.left);
  			dataForGameResolution->SetInt(TEXT("cy"), rcApp.bottom - rcApp.top);
- 			dataOfFullScreenGame->SetInt(TEXT("captureX"), rcApp.left);
- 			dataOfFullScreenGame->SetInt(TEXT("captureY"), rcApp.right);
- 			dataOfFullScreenGame->SetInt(TEXT("captureCX"), rcApp.right - rcApp.left);
- 			dataOfFullScreenGame->SetInt(TEXT("captureCY"), rcApp.bottom - rcApp.top);
 
 			bCapturingFullScreenMode = true;
 
 			ChangeSource(bCapturingFullScreenMode);
-			ResetStream();
-			FitItemsToScreen();
+			ResetStream(false);
+			//FitItemsToScreen();
 		}
 	}
 }
 
-void OBS::ResetStream()
+void OBS::ResetStream(bool bResetScreenMode)
 {
 	if (IsRunning() && bStreaming)
 	{
-		SetFullscreenMode(false);
+		if (bResetScreenMode)
+		{
+			SetFullscreenMode(false);
+		}
+		
 		SendMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_TESTSTREAM, 0), NULL);
 		if (monitors.Num() == 1 && !bDisplayResolutionChanged)
 		{
@@ -2566,7 +2565,10 @@ void OBS::ResetStream()
 	if (monitors.Num() != 1)
 	{
 		SendMessage(hwndMain, WM_COMMAND, MAKEWPARAM(ID_TESTSTREAM, 0), NULL);
-		SetFullscreenMode(true);
+		if (bResetScreenMode)
+		{
+			SetFullscreenMode(true);
+		}
 	}
 }
 
