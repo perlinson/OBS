@@ -2527,7 +2527,7 @@ void OBS::RefreshWindowList()
 			dataOfFullScreenGame->SetString(TEXT("executable"), strExecutable);
 			dataOfFullScreenGame->SetInt(TEXT("stretchImage"), TRUE);
 			dataOfFullScreenGame->SetInt(TEXT("alphaBlend"), FALSE);
-			dataOfFullScreenGame->SetInt(TEXT("ignoreAspect"), TRUE);
+			dataOfFullScreenGame->SetInt(TEXT("ignoreAspect"), FALSE);
 			dataOfFullScreenGame->SetInt(TEXT("captureMouse"), TRUE);
 			dataOfFullScreenGame->SetInt(TEXT("safeHook"), TRUE);
 
@@ -2597,6 +2597,7 @@ void OBS::ChangeSource(bool bCaptureFullScreenGame)
 				sceneItem->bRender = bCaptureFullScreenGame;
 				sceneItem->SetRender(bCaptureFullScreenGame);
 			}
+			OutputDebugString(TEXT("ReportSourceChanged Invoked!"));
 			ReportSourceChanged(source->GetName(), source);
 		}
 	}
