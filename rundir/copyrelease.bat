@@ -1,13 +1,13 @@
 @echo off
 copy ..\release\obs.exe .\
-copy ..\obsapi\release\obsapi.dll .\
-copy ..\dshowplugin\release\dshowplugin.dll .\plugins
-copy ..\graphicscapture\release\graphicscapture.dll .\plugins
-copy ..\graphicscapture\graphicscapturehook\release\graphicscapturehook.dll .\plugins\graphicscapture
-copy ..\graphicscapture\graphicscapturehook\x64\release\graphicscapturehook64.dll .\plugins\graphicscapture
-copy ..\noisegate\release\noisegate.dll .\plugins
-copy ..\psvplugin\release\psvplugin.dll .\plugins
+copy ..\release\obsapi.dll .\
+copy ..\release\dshowplugin.dll .\plugins
+copy ..\release\graphicscapture.dll .\plugins
+copy ..\release\graphicscapturehook.dll .\plugins\graphicscapture
+copy ..\x64\release\graphicscapturehook64.dll .\plugins\graphicscapture
+copy ..\release\noisegate.dll .\plugins
+copy ..\release\psvplugin.dll .\plugins
 copy ..\x264\libs\32bit\libx264-142.dll .\
-copy ..\injectHelper\Release\injectHelper.exe .\plugins\graphicscapture
-copy ..\injectHelper\x64\Release\injectHelper64.exe .\plugins\graphicscapture
-copy ..\ObsNvenc\Release\ObsNvenc.dll .\
+copy ..\Release\injectHelper.exe .\plugins\graphicscapture
+copy ..\x64\Release\injectHelper64.exe .\plugins\graphicscapture
+copy ..\Release\ObsNvenc.dll .\

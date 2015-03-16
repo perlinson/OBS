@@ -983,10 +983,14 @@ void GraphicsCaptureSource::Render(const Vect2 &pos, const Vect2 &size)
             RoundVect2(texPos);
             RoundVect2(texSize);
 
-            if(bFlip)
-                DrawSprite(tex, 0xFFFFFFFF, texPos.x, texPos.y+texStretch.y, texPos.x+texStretch.x, texPos.y);
-            else
-                DrawSprite(tex, 0xFFFFFFFF, texPos.x, texPos.y, texPos.x+texStretch.x, texPos.y+texStretch.y);
+			SetViewport(0, 0, 2560, 1440);
+			DrawSprite(tex, 0xFFFFFFFF, texPos.x, texPos.y, texPos.x + texStretch.x, texPos.y + texStretch.y);
+				
+
+//             if(bFlip)
+//                 DrawSprite(tex, 0xFFFFFFFF, texPos.x, texPos.y+texStretch.y, texPos.x+texStretch.x, texPos.y);
+//             else
+//                 DrawSprite(tex, 0xFFFFFFFF, texPos.x, texPos.y, texPos.x+texStretch.x, texPos.y+texStretch.y/2);
 
             capture->UnlockTexture();
 

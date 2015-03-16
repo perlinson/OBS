@@ -362,7 +362,6 @@
 		<row><td>ISX_DEFAULTCOMPONENT7</td><td>{7E89FC01-663E-436E-BAE9-121D16C2F7A8}</td><td>SHADERS</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT8</td><td>{1BB7F104-5FE2-4A50-87DD-6B585FB62070}</td><td>GRAPHICSCAPTURE</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT9</td><td>{B088703E-5B01-4FD1-B215-B083E4627F53}</td><td>PSVPLUGIN</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>MagicViewer.Service.exe</td><td>{1BFB5762-7FAF-4D5A-9E5D-9D12364439DB}</td><td>INSTALLDIR</td><td>2</td><td/><td>magicviewer.service.exe</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>MagicViewer.exe</td><td>{ED24C980-E1B4-4F0D-91C3-1BE845AAA732}</td><td>INSTALLDIR</td><td>2</td><td/><td>magicviewer.exe</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>NewComponent1</td><td>{928CC2BB-4C53-4C24-8016-71C01CEEBFAE}</td><td>INSTALLDIR</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>NewComponent2</td><td>{DB958F1C-0988-42F3-84C8-2851995AC154}</td><td>INSTALLDIR</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -1945,7 +1944,6 @@
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT7</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT8</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT9</td></row>
-		<row><td>AlwaysInstall</td><td>MagicViewer.Service.exe</td></row>
 		<row><td>AlwaysInstall</td><td>MagicViewer.exe</td></row>
 		<row><td>AlwaysInstall</td><td>NewComponent1</td></row>
 		<row><td>AlwaysInstall</td><td>NewComponent2</td></row>
@@ -2033,7 +2031,6 @@
 		<row><td>drawyuvtexture.pshader</td><td>ISX_DEFAULTCOMPONENT11</td><td>DRAWYU~1.PSH|DrawYUVTexture.pShader</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\shaders\DrawYUVTexture.pShader</td><td>1</td><td/></row>
 		<row><td>dshowdevices.xconfig</td><td>ISX_DEFAULTCOMPONENT15</td><td>DSHOWD~1.XCO|dshowDevices.xconfig</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\MagicViewer\pluginData\dshowDevices.xconfig</td><td>1</td><td/></row>
 		<row><td>dshowplugin.dll</td><td>DShowPlugin.dll</td><td>DSHOWP~1.DLL|DShowPlugin.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\DShowPlugin.dll</td><td>1</td><td/></row>
-		<row><td>dshowplugin.pdb</td><td>ISX_DEFAULTCOMPONENT2</td><td>DSHOWP~1.PDB|DShowPlugin.pdb</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\DShowPlugin.pdb</td><td>1</td><td/></row>
 		<row><td>el.txt</td><td>ISX_DEFAULTCOMPONENT3</td><td>el.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\locale\el.txt</td><td>1</td><td/></row>
 		<row><td>el.txt1</td><td>ISX_DEFAULTCOMPONENT6</td><td>el.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\DShowPlugin\locale\el.txt</td><td>1</td><td/></row>
 		<row><td>el.txt2</td><td>ISX_DEFAULTCOMPONENT10</td><td>el.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\PSVPlugin\locale\el.txt</td><td>1</td><td/></row>
@@ -2060,7 +2057,6 @@
 		<row><td>gl.txt2</td><td>ISX_DEFAULTCOMPONENT10</td><td>gl.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\PSVPlugin\locale\gl.txt</td><td>1</td><td/></row>
 		<row><td>global.ini</td><td>ISX_DEFAULTCOMPONENT12</td><td>global.ini</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\MagicViewer\global.ini</td><td>1</td><td/></row>
 		<row><td>graphicscapture.dll</td><td>GraphicsCapture.dll</td><td>GRAPHI~1.DLL|GraphicsCapture.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\GraphicsCapture.dll</td><td>1</td><td/></row>
-		<row><td>graphicscapture.pdb</td><td>ISX_DEFAULTCOMPONENT2</td><td>GRAPHI~1.PDB|GraphicsCapture.pdb</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\GraphicsCapture.pdb</td><td>1</td><td/></row>
 		<row><td>graphicscapturehook.dll</td><td>GraphicsCaptureHook.dll</td><td>GRAPHI~1.DLL|GraphicsCaptureHook.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\GraphicsCapture\GraphicsCaptureHook.dll</td><td>1</td><td/></row>
 		<row><td>graphicscapturehook64.dll</td><td>GraphicsCaptureHook64.dll</td><td>GRAPHI~1.DLL|GraphicsCaptureHook64.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\GraphicsCapture\GraphicsCaptureHook64.dll</td><td>1</td><td/></row>
 		<row><td>hdyctorgb.pshader</td><td>ISX_DEFAULTCOMPONENT7</td><td>HDYCTO~1.PSH|HDYCToRGB.pShader</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\DShowPlugin\shaders\HDYCToRGB.pShader</td><td>1</td><td/></row>
@@ -2093,7 +2089,6 @@
 		<row><td>lt.txt1</td><td>ISX_DEFAULTCOMPONENT6</td><td>lt.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\DShowPlugin\locale\lt.txt</td><td>1</td><td/></row>
 		<row><td>lt.txt2</td><td>ISX_DEFAULTCOMPONENT10</td><td>lt.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\PSVPlugin\locale\lt.txt</td><td>1</td><td/></row>
 		<row><td>magicviewer.exe</td><td>MagicViewer.exe</td><td>MAGICV~1.EXE|MagicViewer.exe</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\MagicViewer.exe</td><td>1</td><td/></row>
-		<row><td>magicviewer.service.exe</td><td>MagicViewer.Service.exe</td><td>MAGICV~1.EXE|MagicViewer.Service.exe</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\MagicViewer.Service.exe</td><td>1</td><td/></row>
 		<row><td>mvdiscsvc.exe</td><td>mvDiscSvc.exe</td><td>MVDISC~1.EXE|mvDiscSvc.exe</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\mvDiscSvc.exe</td><td>1</td><td/></row>
 		<row><td>nb.txt</td><td>ISX_DEFAULTCOMPONENT3</td><td>nb.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\locale\nb.txt</td><td>1</td><td/></row>
 		<row><td>nb.txt1</td><td>ISX_DEFAULTCOMPONENT6</td><td>nb.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\DShowPlugin\locale\nb.txt</td><td>1</td><td/></row>
@@ -2106,12 +2101,8 @@
 		<row><td>no.txt2</td><td>ISX_DEFAULTCOMPONENT10</td><td>no.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\PSVPlugin\locale\no.txt</td><td>1</td><td/></row>
 		<row><td>noisegate.dll</td><td>NoiseGate.dll</td><td>NOISEG~1.DLL|NoiseGate.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\NoiseGate.dll</td><td>1</td><td/></row>
 		<row><td>noisegate.ini</td><td>ISX_DEFAULTCOMPONENT15</td><td>NOISEG~1.INI|noisegate.ini</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\MagicViewer\pluginData\noisegate.ini</td><td>1</td><td/></row>
-		<row><td>noisegate.pdb</td><td>ISX_DEFAULTCOMPONENT2</td><td>NOISEG~1.PDB|NoiseGate.pdb</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\NoiseGate.pdb</td><td>1</td><td/></row>
-		<row><td>obs.pdb</td><td>ISX_DEFAULTCOMPONENT2</td><td>OBS.pdb</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\OBS.pdb</td><td>1</td><td/></row>
 		<row><td>obsapi.dll</td><td>OBSApi.dll</td><td>OBSApi.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\OBSApi.dll</td><td>1</td><td/></row>
-		<row><td>obsapi.pdb</td><td>ISX_DEFAULTCOMPONENT2</td><td>OBSApi.pdb</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\OBSApi.pdb</td><td>1</td><td/></row>
 		<row><td>obsnvenc.dll</td><td>ObsNvenc.dll</td><td>ObsNvenc.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\ObsNvenc.dll</td><td>1</td><td/></row>
-		<row><td>obsnvenc.pdb</td><td>ISX_DEFAULTCOMPONENT2</td><td>ObsNvenc.pdb</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\ObsNvenc.pdb</td><td>1</td><td/></row>
 		<row><td>pe.txt</td><td>ISX_DEFAULTCOMPONENT3</td><td>pe.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\locale\pe.txt</td><td>1</td><td/></row>
 		<row><td>pe.txt1</td><td>ISX_DEFAULTCOMPONENT6</td><td>pe.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\DShowPlugin\locale\pe.txt</td><td>1</td><td/></row>
 		<row><td>pe.txt2</td><td>ISX_DEFAULTCOMPONENT10</td><td>pe.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\PSVPlugin\locale\pe.txt</td><td>1</td><td/></row>
@@ -2120,13 +2111,11 @@
 		<row><td>pl.txt2</td><td>ISX_DEFAULTCOMPONENT10</td><td>pl.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\PSVPlugin\locale\pl.txt</td><td>1</td><td/></row>
 		<row><td>psv.ini</td><td>ISX_DEFAULTCOMPONENT15</td><td>psv.ini</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\MagicViewer\pluginData\psv.ini</td><td>1</td><td/></row>
 		<row><td>psvplugin.dll</td><td>PSVPlugin.dll</td><td>PSVPLU~1.DLL|PSVPlugin.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\PSVPlugin.dll</td><td>1</td><td/></row>
-		<row><td>psvplugin.pdb</td><td>ISX_DEFAULTCOMPONENT2</td><td>PSVPLU~1.PDB|PSVPlugin.pdb</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\PSVPlugin.pdb</td><td>1</td><td/></row>
 		<row><td>pt.txt</td><td>ISX_DEFAULTCOMPONENT3</td><td>pt.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\locale\pt.txt</td><td>1</td><td/></row>
 		<row><td>pt.txt1</td><td>ISX_DEFAULTCOMPONENT6</td><td>pt.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\DShowPlugin\locale\pt.txt</td><td>1</td><td/></row>
 		<row><td>pt.txt2</td><td>ISX_DEFAULTCOMPONENT10</td><td>pt.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\PSVPlugin\locale\pt.txt</td><td>1</td><td/></row>
 		<row><td>qsvhelper.exe</td><td>QSVHelper.exe</td><td>QSVHEL~1.EXE|QSVHelper.exe</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\QSVHelper.exe</td><td>1</td><td/></row>
 		<row><td>qsvhelper.log</td><td>ISX_DEFAULTCOMPONENT15</td><td>QSVHEL~1.LOG|QSVHelper.log</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\MagicViewer\pluginData\QSVHelper.log</td><td>1</td><td/></row>
-		<row><td>qsvhelper.pdb</td><td>ISX_DEFAULTCOMPONENT2</td><td>QSVHEL~1.PDB|QSVHelper.pdb</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\QSVHelper.pdb</td><td>1</td><td/></row>
 		<row><td>ro.txt</td><td>ISX_DEFAULTCOMPONENT3</td><td>ro.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\locale\ro.txt</td><td>1</td><td/></row>
 		<row><td>ro.txt1</td><td>ISX_DEFAULTCOMPONENT6</td><td>ro.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\DShowPlugin\locale\ro.txt</td><td>1</td><td/></row>
 		<row><td>ro.txt2</td><td>ISX_DEFAULTCOMPONENT10</td><td>ro.txt</td><td>0</td><td/><td/><td/><td>1</td><td>D:\program\C++\OBS\rundir\plugins\PSVPlugin\locale\ro.txt</td><td>1</td><td/></row>
@@ -2344,7 +2333,6 @@
 		<row><td>ISX_DEFAULTCOMPONENT7</td><td/><td/><td>_E67686BB_8581_4EBB_BC08_4818C41E1A9F_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT8</td><td/><td/><td>_B98E5C55_7B91_4BB4_8909_D77C9F4593FD_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT9</td><td/><td/><td>_31B2EFB8_A01D_4CDA_AF54_7F57D240D823_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>MagicViewer.Service.exe</td><td/><td/><td>_956CC929_F53B_40DB_AC5E_01E377B64DDF_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>MagicViewer.exe</td><td/><td/><td>_46C68AAE_2781_445C_A37C_F8FE6A281B25_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>NewComponent1</td><td/><td/><td>_2AC5F09F_3D1E_4DB5_8B83_815D0ECBA1BC_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>NewComponent2</td><td/><td/><td>_AA42F66F_A41D_49DE_AEFE_23F38FBA7A64_FILTER</td><td/><td/><td/><td/></row>

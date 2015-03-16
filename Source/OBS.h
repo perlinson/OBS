@@ -1314,7 +1314,7 @@ public:
     void ClosePendingStreams();
 	void ResetMainWndState();
 
-	void ResetStream();
+	void ResetStream(bool bResetScreenMode);
 
 	void CalculateViewportRegion(RECT& rcLeft, RECT& rcRight, RECT& rcDstLeft, RECT& rcDstRight);
 	void SetCapturePrimaryScreen();

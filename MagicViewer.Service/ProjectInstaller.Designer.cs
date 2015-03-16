@@ -28,8 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.serviceProcessInstaller1 = new System.ServiceProcess.ServiceProcessInstaller();
             this.serviceInstaller1 = new System.ServiceProcess.ServiceInstaller();
+            this.timerDetectDevice = new System.Windows.Forms.Timer(this.components);
             // 
             // serviceProcessInstaller1
             // 
@@ -44,6 +46,11 @@
             this.serviceInstaller1.ServiceName = "MagicViewerDeviceDiscoveryService";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
+            // timerDetectDevice
+            // 
+            this.timerDetectDevice.Enabled = true;
+            this.timerDetectDevice.Interval = 1000;
+            // 
             // ProjectInstaller
             // 
             this.Installers.AddRange(new System.Configuration.Install.Installer[] {
@@ -56,5 +63,6 @@
 
         private System.ServiceProcess.ServiceProcessInstaller serviceProcessInstaller1;
         private System.ServiceProcess.ServiceInstaller serviceInstaller1;
+        private System.Windows.Forms.Timer timerDetectDevice;
     }
 }

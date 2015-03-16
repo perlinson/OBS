@@ -72,7 +72,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\</OutDir>
@@ -124,7 +124,7 @@
       <AdditionalDependencies>Avrt.lib;dwmapi.lib;comctl32.lib;dxgi.lib;dxguid.lib;d3d11.lib;d3dx11.lib;ws2_32.lib;Iphlpapi.lib;Winmm.lib;librtmp.lib;libmp3lame-static.lib;libfaac.lib;dsound.lib;obsapi.lib;shell32.lib;gdiplus.lib;mfplat.lib;Mfuuid.lib;Winhttp.lib;libx264.lib;UxTheme.lib;Xinput9_1_0.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
       </Version>
-      <AdditionalLibraryDirectories>OBSApi/Debug;x264/libs/32bit;librtmp/debug;lame/output/32bit;libfaac/debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>Debug;x264/libs/32bit;lame/output/32bit;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalManifestDependencies>type=%27win32%27 name=%27Microsoft.Windows.Common-Controls%27 version=%276.0.0.0%27 processorArchitecture=%27X86%27 publicKeyToken=%276595b64144ccf1df%27 language=%27*%27;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>rundir\pdb32\$(TargetName).pdb</ProgramDatabaseFile>
@@ -134,9 +134,10 @@
       <LargeAddressAware>true</LargeAddressAware>
       <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(ProjectName).exe rundir</Command>
+      <Command>copy "$(OutDir)$(ProjectName).exe" rundir</Command>
     </PostBuildEvent>
     <Manifest>
       <AdditionalManifestFiles>OBS.manifest</AdditionalManifestFiles>
@@ -214,6 +215,7 @@
       <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(ProjectName).exe rundir</Command>
@@ -288,6 +290,7 @@
     <ClCompile Include="Source\Hacks.cpp" />
     <ClCompile Include="Source\HTTPClient.cpp" />
     <ClCompile Include="Source\ImageProcessing.cpp" />
+    <ClCompile Include="Source\OBS.cpp" />
     <ClCompile Include="Source\ReplayBuffer.cpp" />
     <ClCompile Include="Source\libnsgif.c" />
     <ClCompile Include="Source\LogUploader.cpp" />
@@ -295,7 +298,6 @@
     <ClCompile Include="Source\MMDeviceAudioSource.cpp" />
     <ClCompile Include="Source\MP4FileStream.cpp" />
     <ClCompile Include="Source\NullOutput.cpp" />
-    <ClCompile Include="Source\OBS.cpp" />
     <ClCompile Include="Source\OBSCapture.cpp" />
     <ClCompile Include="Source\OBSEvents.cpp" />
     <ClCompile Include="Source\OBSHotkeyHandlers.cpp" />

@@ -5567,7 +5567,7 @@ LRESULT CALLBACK OBS::RenderFrameProc(HWND hwnd, UINT message, WPARAM wParam, LP
         }
         if(message == WM_RBUTTONUP)
         {
-			return 0;
+			//return 0;
             HMENU hPopup = CreatePopupMenu();
 
             //---------------------------------------------------

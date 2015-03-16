@@ -76,9 +76,6 @@
     <ClCompile Include="Source\NullOutput.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\OBS.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="Source\OBSCapture.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -161,6 +158,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Service.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OBS.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

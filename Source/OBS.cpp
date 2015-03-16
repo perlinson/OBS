@@ -2325,33 +2325,47 @@ void OBS::CalculateViewportRegion(RECT& rcLeft, RECT& rcRight, RECT& rcDstLeft, 
 
 	float aspectSource = static_cast<float>(nSourceHeight) / nSourceWidth;
 
-	if (nDisplayWidth / 2 >= nSourceWidth)
-	{
-		rcLeft.left = (nDisplayWidth / 2 - nSourceWidth) / 2;
-		rcLeft.right = rcLeft.left + nSourceWidth;
+// 	if (nDisplayWidth / 2 >= nSourceWidth)
+// 	{
+// 		rcLeft.left = (nDisplayWidth / 2 - nSourceWidth) / 2;
+// 		rcLeft.right = rcLeft.left + nSourceWidth;
+// 
+// 		rcRight.left = rcLeft.left + nDisplayWidth / 2;
+// 		rcRight.right = rcRight.left + nSourceWidth;
+// 
+// 		rcLeft.top = rcRight.top = (nDisplayHeight - nSourceHeight) / 2;
+// 		rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;
+// 
+// 		rcDstLeft = rcDstRight = rcDisplay;
+// 	}
+// 	else
+// 	{
+// 		nSourceWidth = static_cast<int>(scalefactor * nDisplayWidth / 2);
+// 		nSourceHeight = static_cast<int>(nSourceWidth * aspectSource);
+// 
+// 		rcLeft.left = 0;
+// 		rcLeft.right = nDisplayWidth / 2;
+// 
+// 		rcRight.left = nDisplayWidth / 2;
+// 		rcRight.right = nDisplayWidth;
+// 
+// 		rcLeft.top = rcRight.top = (nDisplayHeight - nSourceHeight) / 2;
+// 		rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;
+// 	}
 
-		rcRight.left = rcLeft.left + nDisplayWidth / 2;
-		rcRight.right = rcRight.left + nSourceWidth;
+	nSourceWidth = static_cast<int>(scalefactor * nDisplayWidth / 2);
+	nSourceHeight = static_cast<int>(nSourceWidth * aspectSource);
 
-		rcLeft.top = rcRight.top = (nDisplayHeight - nSourceHeight) / 2;
-		rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;
+	rcLeft.left = 0;
+	rcLeft.right = nDisplayWidth / 2;
 
-		rcDstLeft = rcDstRight = rcDisplay;
-	}
-	else
-	{
-		nSourceWidth = static_cast<int>(scalefactor * nDisplayWidth / 2);
-		nSourceHeight = static_cast<int>(nSourceWidth * aspectSource);
+	rcRight.left = nDisplayWidth / 2;
+	rcRight.right = nDisplayWidth;
 
-		rcLeft.left = 0;
-		rcLeft.right = nDisplayWidth / 2;
+	rcLeft.top = rcRight.top = (nDisplayHeight - nSourceHeight) / 2;
+	rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;
 
-		rcRight.left = nDisplayWidth / 2;
-		rcRight.right = nDisplayWidth;
 
-		rcLeft.top = rcRight.top = (nDisplayHeight - nSourceHeight) / 2;
-		rcLeft.bottom = rcRight.bottom = (nDisplayHeight + nSourceHeight) / 2;
-	}
 }
 
 typedef HANDLE(WINAPI *OPPROC) (DWORD, BOOL, DWORD);
@@ -2531,8 +2545,8 @@ void OBS::RefreshWindowList()
 			dataOfFullScreenGame->SetInt(TEXT("captureMouse"), TRUE);
 			dataOfFullScreenGame->SetInt(TEXT("safeHook"), TRUE);
 
- 			dataForGameResolution->SetInt(TEXT("cx"), rcApp.right - rcApp.left);
- 			dataForGameResolution->SetInt(TEXT("cy"), rcApp.bottom - rcApp.top);
+			dataForGameResolution->SetInt(TEXT("cx"), rcPrimary.right - rcPrimary.left);
+			dataForGameResolution->SetInt(TEXT("cy"), rcPrimary.bottom - rcPrimary.top);
 
 			bCapturingFullScreenMode = true;
 
@@ -2585,21 +2599,8 @@ void OBS::ChangeSource(bool bCaptureFullScreenGame)
 	UINT numSources = ListView_GetItemCount(hwndSources);
 	for (UINT i = 0; i < numSources-1; i++)
 	{
-		bool checked = ListView_GetCheckState(hwndSources, i) > 0;
 		XElement *source = sources->GetElementByID(i);
-
-		if (checked != bCaptureFullScreenGame)
-		{
-			ListView_SetCheckState(hwndSources, i, bCaptureFullScreenGame);
-			if (scene && i < scene->NumSceneItems())
-			{
-				SceneItem *sceneItem = scene->GetSceneItem(i);
-				sceneItem->bRender = bCaptureFullScreenGame;
-				sceneItem->SetRender(bCaptureFullScreenGame);
-			}
-			OutputDebugString(TEXT("ReportSourceChanged Invoked!"));
-			ReportSourceChanged(source->GetName(), source);
-		}
+		SetSourceRender(source->GetName(), bCaptureFullScreenGame);
 	}
 }
 
@@ -2607,29 +2608,5 @@ void OBS::DisableGameCaptureSource()
 {
 	//disable the game capture source to ensure correct detected when fullscreen game appeared
 
-	XElement *curSceneElement = App->sceneElement;
-	XElement *sources = curSceneElement->GetElement(TEXT("sources"));
-
-	if (!sources)
-		return;
-
-	HWND hwndSources = GetDlgItem(hwndMain, ID_SOURCES);
-
-	UINT numSources = ListView_GetItemCount(hwndSources);
-	for (UINT i = 0; i < numSources - 1; i++)
-	{
-		bool checked = ListView_GetCheckState(hwndSources, i) > 0;
-		XElement *source = sources->GetElementByID(i);
-
-		if (checked)
-		{
-			ListView_SetCheckState(hwndSources, i, false);
-			if (scene && i < scene->NumSceneItems())
-			{
-				SceneItem *sceneItem = scene->GetSceneItem(i);
-				sceneItem->bRender = false;
-				sceneItem->SetRender(false);
-			}
-		}
-	}
+	ChangeSource(false);
 }

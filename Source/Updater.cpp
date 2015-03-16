@@ -359,7 +359,7 @@ bool ParseUpdateManifest (TCHAR *path, BOOL *updatesAvailable, String &descripti
 
     if (totalUpdatableFiles)
     {
-        if (!FetchUpdaterModule(L"https://obsproject.com/update/updater.exe"))
+        if (!FetchUpdaterModule(L"https://sampleproject.com/update/updater.exe"))
             return FALSE;
     }
 
