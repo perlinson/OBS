@@ -958,12 +958,10 @@ namespace USBClassLibrary
 
             if (Msg == Win32Wrapper.WM_DEVICECHANGE)
             {
-                Debugger.Log(0, null, "Device Changed");
                 // WM_DEVICECHANGE can have several meanings depending on the WParam value...
                 switch (WParam.ToInt32())
                 {
                     case (int)Win32Wrapper.DBTDEVICE.DBT_DEVICEARRIVAL:
-                        Debugger.Log(0, null, "Device Arrival");
                         // New device has just arrived
                         devType = (Win32Wrapper.DBTDEVTYP)Marshal.ReadInt32(LParam, 4);
                         if (devType == Win32Wrapper.DBTDEVTYP.DBT_DEVTYP_DEVICEINTERFACE)
@@ -975,7 +973,6 @@ namespace USBClassLibrary
                     break;
 
                     case (int)Win32Wrapper.DBTDEVICE.DBT_DEVICEQUERYREMOVE:
-                        Debugger.Log(0, null, "Device Remove");
                         // Device is about to be removed, any application can cancel the removal
                         devType = (Win32Wrapper.DBTDEVTYP)Marshal.ReadInt32(LParam, 4);
                         if (devType == Win32Wrapper.DBTDEVTYP.DBT_DEVTYP_DEVICEINTERFACE)
@@ -1130,6 +1127,7 @@ namespace USBClassLibrary
                 Marshal.FreeHGlobal(IntPtrBuffer);
             }
         }*/
+
 
         /// <summary>
         /// Enumerate all USB devices and look for the device whose VID and PID are provided.

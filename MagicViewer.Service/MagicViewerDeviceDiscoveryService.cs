@@ -8,6 +8,7 @@ using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using System.Windows.Forms;
+using USBClassLibrary;
 
 namespace MagicViewer.Service
 {
@@ -19,27 +20,20 @@ namespace MagicViewer.Service
         {
             InitializeComponent();
             driveDetector = new DriveDetector();
-            driveDetector.DeviceArrived += new DriveDetectorEventHandler(OnDriveArrived);
-            driveDetector.DeviceRemoved += new DriveDetectorEventHandler(OnDriveRemoved);
-
-
-
-
+            driveDetector.mUSBPort.USBDeviceAttached += new USBClass.USBDeviceEventHandler(OnDriveArrived);
+            driveDetector.mUSBPort.USBDeviceRemoved += new USBClass.USBDeviceEventHandler(OnDriveRemoved);
         }
 
 
 
-        void OnDriveRemoved(object sender, DriveDetectorEventArgs e)
+        void OnDriveRemoved(object sender, USBClass.USBDeviceEventArgs e)
         {
-            //Debugger.Log(0, null, "DeviceRemoved");
+            Debugger.Log(0, null, "DeviceRemoved");
         }
 
-        void OnDriveArrived(object sender, DriveDetectorEventArgs e)
+        void OnDriveArrived(object sender, USBClass.USBDeviceEventArgs e)
         {
-
-
-
-            //Debugger.Log(0, null, "DeviceArrived");
+            Debugger.Log(0, null, "DeviceArrived");
         }
 
         protected override void OnStart(string[] args)
